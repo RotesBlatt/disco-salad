@@ -87,11 +87,20 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
     while(customGuild.voiceConnection){
-        if(customGuild.songQueue.length === 0 && customGuild.currentResource?.ended){ break }
+        if(customGuild.songQueue.length === 0 && customGuild.currentResource?.ended){ 
+            customGuild.currentSong = undefined;
+            console.log(`[INFO] The song queue is empty in guild "${interaction.guild?.name}"`)
+            break;
+        }
 
         try {
-            var song = customGuild.songQueue.shift()!;
+            if(customGuild.loopFirstInQueue){
+                var song = customGuild.songQueue.at(0)!;
+            } else {
+                var song = customGuild.songQueue.shift()!;
+            }
             playNextSongInQueue(song, customGuild);
+            customGuild.currentSong = song;
         } catch (error) {
             console.log('[ERROR] There was an error playing the song ');
             await interaction.channel?.send('There was en error playing that song, skipping ahead');

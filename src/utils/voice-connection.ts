@@ -47,5 +47,7 @@ export async function leaveVoiceChannel(interaction: ChatInputCommandInteraction
     customGuild.player = undefined;
     customGuild.voiceConnection = undefined;
     customGuild.currentResource = undefined;
+    customGuild.currentSong = undefined;
     customGuild.songQueue = [];
+    customGuild.loopFirstInQueue = false;
 }

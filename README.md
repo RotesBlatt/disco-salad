@@ -73,7 +73,7 @@ This is an example of how to list things you need to use the software and how to
 - [ ] Expanding the basics
     - [ ] Search for song by searching for the given title (ytsr)
     - [ ] Enqueue songs by YT-link to playlist (ytpl)
-    - [ ] Current song looping
+    - [x] Current song looping
     - [ ] Current song queue looping
     - [ ] Show the current playing song to the user
         - [ ] Title of the song
