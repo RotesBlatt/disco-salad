@@ -20,13 +20,14 @@ export default {
         if(!customGuild.player){
             console.log(`[WARNING] Can not pause song because no song is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply("Can not pause song because no song is playing");
+            return;
+        } 
+
+        const successfulPause = customGuild.player.pause(true);
+        if(successfulPause){
+            await interaction.editReply("Pausing song");
         } else {
-            const successfulPause = customGuild.player.pause(true);
-            if(successfulPause){
-                await interaction.editReply("Pausing song");
-            } else {
-                await interaction.editReply("Something went wrong while pausing your song");
-            }
+            await interaction.editReply("Something went wrong while pausing your song");
         }
     },
 }

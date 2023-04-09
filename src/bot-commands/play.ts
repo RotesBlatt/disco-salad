@@ -1,8 +1,8 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { ClientAdaptation, CustomGuild, Song } from "..";
-import { createVoiceConnection, leaveVoiceChannel } from "../voice-connection";
 import ytdl from "ytdl-core";
-import { StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel } from "@discordjs/voice";
+import { ClientAdaptation, CustomGuild, Song } from "..";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { createVoiceConnection, leaveVoiceChannel } from "../voice-connection";
+import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
 
 export default {
     data: new SlashCommandBuilder()
@@ -28,7 +28,6 @@ export default {
 
         if(await createVoiceConnection(interaction, clientAdapter)){    
             createAudioPlayerForGuild(interaction, clientAdapter);
-    
             addSongToGuildQueue(interaction, clientAdapter, ytUrl);
         }
     },
@@ -58,29 +57,29 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
 
 async function createAudioPlayerForGuild(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-    if(!customGuild.player){
-        console.log(`[INFO] Creating audio player for guild: "${interaction.guild?.name}"`)
-        const player = createAudioPlayer();
-        player.on("error", async error => {
-            console.log(`[ERROR] There was an error playing a song in guild "${interaction.guild}"`);
-            console.log(error);
-            await interaction.channel?.send(`There was an error playing this song, skipping to the next song`);
-        })
-        .on("stateChange", (oldState, newState) => {
-            if(oldState.status === "playing" && newState.status === "idle"){
-                customGuild.timeout = setTimeout(() => {
-                    leaveVoiceChannel(interaction, clientAdapter);
-                }, 5 * 60 * 1000); // 5 min before disconnect
-            } else if (oldState.status === "buffering" && newState.status === "playing"){
-                if(customGuild.timeout){
-                    clearInterval(customGuild.timeout);
-                }
-            }
-        })
+    if(customGuild.player){ return; }
 
-        customGuild.voiceConnection?.subscribe(player);
-        customGuild.player = player;
-    }
+    console.log(`[INFO] Creating audio player for guild: "${interaction.guild?.name}"`)
+    const player = createAudioPlayer();
+    player.on("error", async error => {
+        console.log(`[ERROR] There was an error playing a song in guild "${interaction.guild}"`);
+        console.log(error);
+        await interaction.channel?.send(`There was an error playing this song, skipping to the next song`);
+    })
+    .on("stateChange", (oldState, newState) => {
+        if(oldState.status === "playing" && newState.status === "idle"){
+            customGuild.timeout = setTimeout(() => {
+                leaveVoiceChannel(interaction, clientAdapter);
+            }, 5 * 60 * 1000); // 5 min before disconnect
+        } else if (oldState.status === "buffering" && newState.status === "playing"){
+            if(customGuild.timeout){
+                clearInterval(customGuild.timeout);
+            }
+        }
+    })
+
+    customGuild.voiceConnection?.subscribe(player);
+    customGuild.player = player;
 }
 
 async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
@@ -120,13 +119,13 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
 }
 
 async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction){
-    if(song){
-        console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedBy} in guild "${interaction.guild?.name}"`)
-        if(interaction.replied){
-            await interaction.channel?.send(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
-        } else {
-            await interaction.editReply(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
-        }
+    if(!song){ return; }
+
+    console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedBy} in guild "${interaction.guild?.name}"`)
+    if(interaction.replied){
+        await interaction.channel?.send(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
+    } else {
+        await interaction.editReply(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
     }
 }
 

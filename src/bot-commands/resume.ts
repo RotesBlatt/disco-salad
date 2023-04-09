@@ -20,13 +20,14 @@ export default {
         if(!customGuild.player){
             console.log(`[WARNING] Can not resume song because no song is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply("Can not resume song because no song is playing");
+            return;
+        }
+
+        const successfulResume = customGuild.player.unpause();
+        if(successfulResume){
+            await interaction.editReply("Resuming song");
         } else {
-            const successfulResume = customGuild.player.unpause();
-            if(successfulResume){
-                await interaction.editReply("Resuming song");
-            } else {
-                await interaction.editReply("Something went wrong while resuming your song");
-            }
+            await interaction.editReply("Something went wrong while resuming your song");
         }
     },
 }
