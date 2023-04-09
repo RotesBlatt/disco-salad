@@ -8,6 +8,7 @@ const loadAllCommands = async () => {
     const commandsFolderPathImport = "../bot-commands"
     const commandFilesName = fs.readdirSync(commandsFolderPath).filter(file => file.endsWith('.ts'));
 
+    console.log(`[INFO] Started loading ${commandFilesName.length} (/) commands`)
     for(let i = 0; i < commandFilesName.length; i++){
         const command = (await import(`${commandsFolderPathImport}/${commandFilesName[i]}`)).default;
         if('data' in command && 'execute' in command){
@@ -17,7 +18,7 @@ const loadAllCommands = async () => {
         }
     }
 
-    console.log(`[INFO] Loaded all (${commandFilesName.length}) commands`);
+    console.log(`[INFO] Successfully loaded ${commands.size} (/) commands`);
     return commands;
 }
 
