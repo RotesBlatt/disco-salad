@@ -5,8 +5,10 @@ export class CustomGuild {
     voiceConnection: VoiceConnection | undefined = undefined;
     player: AudioPlayer | undefined = undefined;
     currentResource: AudioResource | undefined = undefined;
+    currentSong: Song | undefined = undefined;
     songQueue: Song[] = [];
     timeout: NodeJS.Timer | undefined = undefined;
+    loopFirstInQueue: boolean = false;
 }
 
 export interface Song {
