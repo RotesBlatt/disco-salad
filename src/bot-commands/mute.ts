@@ -16,7 +16,14 @@ export default {
             return;
         }
 
-        interaction.guild?.members.me?.voice.setMute(true);
+        const botVoiceChannel = interaction.guild?.members.me?.voice;
+        if(botVoiceChannel?.channelId){
+            botVoiceChannel.setMute(true);
+        } else {
+            console.log(`[WARNING] Muting failed because bot is not connected to voice in guild "${interaction.guild?.name}"`);
+            await interaction.editReply('Muting is only possible while the bot is in a voice channel');
+            return;
+        }
 
         await interaction.editReply('Muting the song');
     },
