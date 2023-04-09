@@ -43,9 +43,13 @@ export async function leaveVoiceChannel(interaction: ChatInputCommandInteraction
     console.log(`[INFO] Disconnecting voice channel in guild "${interaction.guild?.name}"`);
     customGuild.player?.removeAllListeners();
     customGuild.voiceConnection?.destroy(true);
-
     customGuild.player = undefined;
     customGuild.voiceConnection = undefined;
+    clearCustomGuildProperties(interaction, clientAdapter);
+}
+
+export async function clearCustomGuildProperties(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
+    const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
     customGuild.currentResource = undefined;
     customGuild.currentSong = undefined;
     customGuild.songQueue = [];
