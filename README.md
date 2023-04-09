@@ -40,7 +40,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
     ```sh
-    git clone https://github.com/your_username_/Project-Name.git
+    git clone https://github.com/RotesBlatt/disco-salad.git
     ```
 2. Install NPM packages
     ```sh
@@ -79,6 +79,11 @@ This is an example of how to list things you need to use the software and how to
         - [ ] Title of the song
         - [ ] Timestamp of where we are in the song
     - [ ] Show the song queue to the user
+- [ ] Create server settings
+  - [ ] Listen to only one text-channel for commands
+  - [ ] Join only one specific channel
+  - [ ] Restrict bot from changing channel when doing (/join)
+  - [ ] Only users with certain permissions can use the bot
 - [ ] Use embeds for user interaction
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
