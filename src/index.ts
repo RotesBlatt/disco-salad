@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import loadAllCommands from "./util/retrieve-commands";
+import loadAllCommands from "./utils/retrieve-commands";
 import { ClientAdaptation, CustomGuild } from "./types/bot-types";
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
 

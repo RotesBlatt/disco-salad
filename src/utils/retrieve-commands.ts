@@ -4,8 +4,8 @@ import { Collection } from "discord.js";
 
 const loadAllCommands = async () => {
     const commands = new Collection<string, any>();
-    const commandsFolderPath = path.resolve('src/bot-commands');
-    const commandsFolderPathImport = "./bot-commands"
+    const commandsFolderPath = path.resolve('./src/bot-commands');
+    const commandsFolderPathImport = "../bot-commands"
     const commandFilesName = fs.readdirSync(commandsFolderPath).filter(file => file.endsWith('.ts'));
 
     for(let i = 0; i < commandFilesName.length; i++){

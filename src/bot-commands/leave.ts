@@ -1,6 +1,6 @@
 import { ClientAdaptation } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { isUserInVoiceChannel, leaveVoiceChannel } from "../util/voice-connection";
+import { isUserInVoiceChannel, leaveVoiceChannel } from "../utils/voice-connection";
 
 export default {
     data: new SlashCommandBuilder()

@@ -1,7 +1,7 @@
 import ytdl from "ytdl-core";
 import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { createVoiceConnection, leaveVoiceChannel } from "../util/voice-connection";
+import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
 
 export default {
