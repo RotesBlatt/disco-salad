@@ -1,6 +1,6 @@
-import { ChatInputCommandInteraction } from "discord.js";
-import { ClientAdaptation } from ".";
 import { joinVoiceChannel } from "@discordjs/voice";
+import { ClientAdaptation } from "../types/bot-types";
+import { ChatInputCommandInteraction } from "discord.js";
 
 export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) { 
 

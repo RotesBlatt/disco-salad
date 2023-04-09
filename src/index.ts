@@ -1,29 +1,9 @@
 import * as dotenv from "dotenv";
+import loadAllCommands from "./util/retrieve-commands";
+import { ClientAdaptation, CustomGuild } from "./types/bot-types";
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
-import { VoiceConnection, AudioPlayer, AudioResource } from "@discordjs/voice";
-import loadAllCommands from "./retrieve-commands";
 
 dotenv.config();
-
-export class CustomGuild {
-    voiceConnection: VoiceConnection | undefined = undefined;
-    player: AudioPlayer | undefined = undefined;
-    currentResource: AudioResource | undefined = undefined;
-    songQueue: Song[] = [];
-    timeout: NodeJS.Timer | undefined = undefined;
-}
-
-export interface Song {
-    title: string,
-    url: string,
-    requestedBy: string,
-}
-
-export interface ClientAdaptation {
-    client: Client,
-    commands: Collection<string, any>,
-    guildCollection: Collection<string, CustomGuild>,
-}
 
 const botClient = new Client({intents: [
     GatewayIntentBits.Guilds,
@@ -34,7 +14,6 @@ const clientAdapter: ClientAdaptation = {
     client: botClient,
     commands: new Collection(),
     guildCollection: new Collection(),
-    
 } 
 
 clientAdapter.client.once(Events.ClientReady, async c => {
