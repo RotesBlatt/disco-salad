@@ -74,11 +74,10 @@ This is an example of how to list things you need to use the software and how to
     - [ ] Search for song by searching for the given title (ytsr)
     - [ ] Enqueue songs by YT-link to playlist (ytpl)
     - [x] Current song looping
-    - [ ] Current song queue looping
-    - [ ] Show the current playing song to the user
-        - [ ] Title of the song
-        - [ ] Timestamp of where we are in the song
+    - [ ] Song queue looping
+    - [x] Show the current playing song to the user
     - [ ] Show the song queue to the user
+    - [ ] Remove songs at specific index from the queue
 - [ ] Create server settings
   - [ ] Listen to only one text-channel for commands
   - [ ] Join only one specific channel
