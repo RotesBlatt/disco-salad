@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ClientAdaptation, Song } from "../types/bot-types";
 
-const EMBED_COLOR_ERROR = 0xff0000
-const EMBED_COLOR_SUCCESSFUL = 0x0099FF;
+const EMBED_COLOR_ERROR = '#c71224';
+const EMBED_COLOR_SUCCESSFUL = '#00aaff';
 
 export function embedAddedSongToQueue(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation): EmbedBuilder {
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
@@ -23,16 +23,20 @@ export function embedAddedSongToQueue(song: Song, interaction: ChatInputCommandI
         return embedMessage;
 }
 
-export function embedNowPlayingSong(song: Song, clientAdapter: ClientAdaptation){
+export function embedNowPlayingSong(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
+    const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+    const timeAlreadyPlayed = (Math.floor(customGuild.currentResource?.playbackDuration!/1000)).toString();
+    const remainingDuration = `${convertSecondsToHoursMinuteSeconds(timeAlreadyPlayed)}/${convertSecondsToHoursMinuteSeconds(song.duration)}`;
+
     const embedMessage = new EmbedBuilder()
         .setColor(EMBED_COLOR_SUCCESSFUL)
         .setTitle(song.title)
         .setURL(song.url)
-        .setAuthor({name: 'Playing Song', iconURL: clientAdapter.client.user?.avatarURL()!})
+        .setAuthor({name: 'Now playing', iconURL: clientAdapter.client.user?.avatarURL()!})
         .setThumbnail(song.thumbnailUrl)
         .addFields(
             {name: 'Channel', value: song.authorName, inline: true},
-            {name: 'Song duration', value: convertSecondsToHoursMinuteSeconds(song.duration), inline: true},
+            {name: 'Remaining song duration', value: remainingDuration, inline: true},
         )
         .setFooter({text: `Requested by: ${song.requestedByUsername} (${song.requestedByTag})`});
     

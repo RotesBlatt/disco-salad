@@ -92,8 +92,10 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
 async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
     console.log(`[INFO] Started playing in guild: "${interaction.guild?.name}"`);
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+    var isFirstIteration = true;
 
     while(customGuild.voiceConnection){
+        
         if(customGuild.songQueue.length === 0 && customGuild.currentResource?.ended){ 
             customGuild.currentSong = undefined;
             console.log(`[INFO] The song queue is empty in guild "${interaction.guild?.name}"`)
@@ -114,7 +116,11 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
             continue;
         }
         
-        await replyWithSongInfo(song, interaction, clientAdapter);
+        if(isFirstIteration){
+            isFirstIteration = false;
+            await replyWithSongInfo(song, interaction, clientAdapter);
+        }
+        
 
         while(!customGuild.currentResource?.ended){
             await sleep(1000);
@@ -137,7 +143,7 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
 async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
     if(!song){ return; }
 
-    const embed = embedNowPlayingSong(song, clientAdapter);
+    const embed = embedNowPlayingSong(song, interaction, clientAdapter);
     console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedByUsername}" in guild "${interaction.guild?.name}"`);
     if(interaction.replied){
         await interaction.channel?.send({embeds: [embed]});
