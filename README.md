@@ -71,7 +71,7 @@ This is an example of how to list things you need to use the software and how to
     - [x] Skipping the current playing song
     - [x] Stopping the currently playing song and clearing the song queue
 - [ ] Expanding the basics
-    - [ ] Search for song by searching for the given title (ytsr)
+    - [x] Search for song by searching for the given title (ytsr)
     - [ ] Enqueue songs by YT-link to playlist (ytpl)
     - [x] Current song looping
     - [ ] Song queue looping
