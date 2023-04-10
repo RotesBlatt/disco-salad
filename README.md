@@ -84,7 +84,8 @@ This is an example of how to list things you need to use the software and how to
   - [ ] Join only one specific channel
   - [ ] Restrict bot from changing channel when doing (/join)
   - [ ] Only users with certain permissions can use the bot
-- [ ] Use embeds for user interaction
+  - [ ] Should show current playing song whenever it starts playing
+- [x] Use embeds for user interaction
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
     - [ ] Amount of times a song has been played

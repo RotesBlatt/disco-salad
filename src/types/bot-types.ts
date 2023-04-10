@@ -14,7 +14,11 @@ export class CustomGuild {
 export interface Song {
     title: string,
     url: string,
-    requestedBy: string,
+    thumbnailUrl: string,
+    authorName: string,
+    duration: string,
+    requestedByUsername: string,
+    requestedByTag: string,
 }
 
 export interface ClientAdaptation {

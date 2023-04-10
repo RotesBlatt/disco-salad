@@ -18,6 +18,6 @@ export default {
 
         leaveVoiceChannel(interaction, clientAdapter);
 
-        await interaction.editReply('Leaving voice channel');
+        await interaction.editReply('**Leaving voice channel**');
     },
 }

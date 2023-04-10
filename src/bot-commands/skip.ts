@@ -1,4 +1,5 @@
 import { ClientAdaptation } from "../types/bot-types";
+import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -19,13 +20,13 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(!customGuild.player){
             console.log(`[WARNING] Can not skip song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply("Can not skip song because no song is playing");
+            await interaction.editReply({embeds: [embedErrorOcurred("Can not skip song because no song is playing", clientAdapter)]});
         } else {
             const successfulSkip = customGuild.player.stop();
             if(successfulSkip){
-                await interaction.editReply("Skipping song");
+                await interaction.editReply(":track_next: **Skipping song**");
             } else {
-                await interaction.editReply("Something went wrong while skipping your song");
+                await interaction.editReply({embeds: [embedErrorOcurred("Something went wrong while skipping your song", clientAdapter)]});
             }
         }
     },

@@ -1,6 +1,7 @@
 import { joinVoiceChannel } from "@discordjs/voice";
 import { ClientAdaptation } from "../types/bot-types";
 import { ChatInputCommandInteraction } from "discord.js";
+import { embedErrorOcurred } from "./embed-responses";
 
 export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) { 
 
@@ -18,8 +19,6 @@ export async function createVoiceConnection(interaction: ChatInputCommandInterac
         });
 
         customGuild.voiceConnection = connection;
-
-        await interaction.editReply('Joining voice channel');
     }
     return true;
 }
@@ -30,8 +29,8 @@ export async function isUserInVoiceChannel(interaction: ChatInputCommandInteract
     const userVoiceChannel = user.voice.channel;
 
     if(!userVoiceChannel){
-        console.log('[WARNING] User is not in a voice channel')
-        await interaction.editReply('You need to be in a voice channel before you can interact with the bot');
+        console.log(`[WARNING] User is not in a voice channel in guild "${interaction.guild?.name}"`)
+        await interaction.editReply({embeds: [embedErrorOcurred('You need to be in a voice channel before you can interact with the bot', clientAdapter)]});
         return undefined;
     }
     return userVoiceChannel.id;
