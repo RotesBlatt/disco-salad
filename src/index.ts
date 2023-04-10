@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import loadAllCommands from "./utils/retrieve-commands";
 import { ClientAdaptation, CustomGuild } from "./types/bot-types";
-import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
+import { Client, Collection, Events, GatewayIntentBits, ActivityType } from "discord.js";
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ const clientAdapter: ClientAdaptation = {
 clientAdapter.client.once(Events.ClientReady, async c => {
     console.log(`[INFO] Logged in as ${c.user.tag}`);
     clientAdapter.commands = await loadAllCommands();
+    clientAdapter.client.user?.setActivity({name: 'the music', type: ActivityType.Playing});
 })
 
 clientAdapter.client.on(Events.InteractionCreate, async interaction => {
