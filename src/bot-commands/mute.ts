@@ -1,4 +1,5 @@
 import { ClientAdaptation } from "../types/bot-types";
+import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -21,10 +22,10 @@ export default {
             botVoiceChannel.setMute(true);
         } else {
             console.log(`[WARNING] Muting failed because bot is not connected to voice in guild "${interaction.guild?.name}"`);
-            await interaction.editReply('Muting is only possible while the bot is in a voice channel');
+            await interaction.editReply({embeds: [embedErrorOcurred('Muting is only possible while the bot is in a voice channel', clientAdapter)]});
             return;
         }
 
-        await interaction.editReply('Muting the song');
+        await interaction.editReply(':mute: **Muting the bot**');
     },
 }

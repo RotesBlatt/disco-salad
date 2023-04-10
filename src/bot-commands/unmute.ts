@@ -1,4 +1,5 @@
 import { ClientAdaptation } from "../types/bot-types";
+import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -21,10 +22,10 @@ export default {
             botVoiceChannel.setMute(false);
         } else {
             console.log(`[WARNING] Un-muting failed because bot is not connected to voice in guild "${interaction.guild?.name}"`);
-            await interaction.editReply('Un-muting is only possible while the bot is in a voice channel');
+            await interaction.editReply({embeds: [embedErrorOcurred('Un-muting is only possible while the bot is in a voice channel', clientAdapter)]});
             return;
         }
         
-        await interaction.editReply('Un-muting the bot');
+        await interaction.editReply(':speaker: **Un-muting the bot**');
     },
 }

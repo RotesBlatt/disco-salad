@@ -1,4 +1,5 @@
 import { ClientAdaptation } from "../types/bot-types";
+import { embedErrorOcurred } from "../utils/embed-responses";
 import { clearCustomGuildProperties, isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -19,7 +20,7 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(!customGuild.player){
             console.log(`[WARNING] Can not stop the bot because nothing is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply("Can not stop the bot because nothing is playing");
+            await interaction.editReply({embeds: [embedErrorOcurred("Can not stop the bot because nothing is playing", clientAdapter)]});
             return;
         } 
 
@@ -28,6 +29,6 @@ export default {
         clearCustomGuildProperties(interaction, clientAdapter);
 
         console.log(`[INFO] Stopped the current playing song and cleared the song queue in guild "${interaction.guild?.name}"`);
-        await interaction.editReply("Stopped the current playing song and cleared the song queue");
+        await interaction.editReply(":no_entry_sign: **Stopped the current playing song and cleared the song queue**");
     },
 }

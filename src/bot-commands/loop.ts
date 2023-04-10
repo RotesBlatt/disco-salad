@@ -1,4 +1,5 @@
 import { ClientAdaptation } from "../types/bot-types";
+import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -19,17 +20,17 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(!customGuild.currentSong){
             console.log(`[WARNING] Can not loop or un-loop song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply("Can not loop or un-loop song because no song is playing");
+            await interaction.editReply({embeds: [embedErrorOcurred("Can not loop or un-loop song because no song is playing", clientAdapter)]});
             return;
         } 
 
         customGuild.loopFirstInQueue = !customGuild.loopFirstInQueue;
         if(customGuild.loopFirstInQueue){
             customGuild.songQueue.unshift(customGuild.currentSong);
-            await interaction.editReply("Looping current playing song");
+            await interaction.editReply(":repeat_one: **Enabled**");
         } else {
             customGuild.songQueue.shift();
-            await interaction.editReply("Current song looping is now disabled");
+            await interaction.editReply(":repeat_one: **Disabled**");
         }
     },
 }

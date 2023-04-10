@@ -3,6 +3,7 @@ import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
+import { embedAddedSongToQueue, embedErrorOcurred, embedNowPlayingSong } from "../utils/embed-responses";
 
 export default {
     data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export default {
         await interaction.deferReply();
 
         if(!isValidUrl){
-            await interaction.editReply('The song you requested is not a valid URL from YouTube');
+            await interaction.editReply({embeds: [embedErrorOcurred('The song you requested is not a valid URL from YouTube', clientAdapter)]});
             return;
         }
 
@@ -39,15 +40,21 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
     const songInfo = await ytdl.getBasicInfo(ytUrl);
+    const videoDetails = songInfo.videoDetails;
+
     const song: Song = {
         url: ytUrl,
-        title: songInfo.videoDetails.title,
-        requestedBy: interaction.user.username,            
+        title: videoDetails.title,
+        thumbnailUrl: videoDetails.thumbnails[3].url, // size: 336 x 188 px
+        authorName: videoDetails.author.name,
+        duration: videoDetails.lengthSeconds,
+        requestedByUsername: interaction.user.username,  
+        requestedByTag: interaction.user.tag,          
     }
     customGuild.songQueue.push(song);
 
     if(customGuild.player!.checkPlayable()){
-        await interaction.editReply(`Added song: "${song.title}" to the queue`);
+        await interaction.editReply({embeds: [embedAddedSongToQueue(song, interaction, clientAdapter)]});
         console.log(`[INFO] Added song: "${song.title}" to the queue in guild "${interaction.guild?.name}"`);
         return;
     } else {
@@ -64,7 +71,7 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     player.on("error", async error => {
         console.log(`[ERROR] There was an error playing a song in guild "${interaction.guild}"`);
         console.log(error);
-        await interaction.channel?.send(`There was an error playing this song, skipping to the next song`);
+        await interaction.channel?.send({embeds: [embedErrorOcurred(`There was an error playing this song, skipping to the next song`, clientAdapter)]});
     })
     .on("stateChange", (oldState, newState) => {
         if(oldState.status === "playing" && newState.status === "idle"){
@@ -103,11 +110,11 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
             customGuild.currentSong = song;
         } catch (error) {
             console.log('[ERROR] There was an error playing the song ');
-            await interaction.channel?.send('There was en error playing that song, skipping ahead');
+            await interaction.channel?.send({embeds: [embedErrorOcurred('There was en error playing that song, skipping ahead', clientAdapter)]});
             continue;
         }
         
-        await replyWithSongInfo(song, interaction);
+        await replyWithSongInfo(song, interaction, clientAdapter);
 
         while(!customGuild.currentResource?.ended){
             await sleep(1000);
@@ -127,14 +134,15 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
     customGuild.currentResource = resource;
 }
 
-async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction){
+async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
     if(!song){ return; }
 
-    console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedBy} in guild "${interaction.guild?.name}"`)
+    const embed = embedNowPlayingSong(song, clientAdapter);
+    console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedByUsername}" in guild "${interaction.guild?.name}"`);
     if(interaction.replied){
-        await interaction.channel?.send(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
+        await interaction.channel?.send({embeds: [embed]});
     } else {
-        await interaction.editReply(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
+        await interaction.editReply({embeds: [embed]});
     }
 }
 
