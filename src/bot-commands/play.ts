@@ -1,3 +1,4 @@
+import ytsr from "ytsr";
 import ytdl from "ytdl-core";
 import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
@@ -10,26 +11,33 @@ export default {
         .setName('play')
         .setDescription('Searches and plays the song provided')
         .addStringOption(option => option
-            .setName('url')
-            .setDescription('The YouTube url of the song you want to play')
+            .setName('search')
+            .setDescription('The YouTube url or the name of the song you want to play')
             .setRequired(true)
             )
         .setDMPermission(false),
     
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
-        const ytUrl = interaction.options.get('url')?.value as string;
-        const isValidUrl = ytdl.validateURL(ytUrl);
-
         await interaction.deferReply();
 
+        var searchString = interaction.options.get('search')?.value as string;
+        const isValidUrl = ytdl.validateURL(searchString);
+
         if(!isValidUrl){
-            await interaction.editReply({embeds: [embedErrorOcurred('The song you requested is not a valid URL from YouTube', clientAdapter)]});
-            return;
+            try {
+                const searchResults = await ytsr(searchString, {limit: 1}); // some weird error gets printed to the console but doesn't affect the actual output
+                const resultItem = searchResults.items[0] as any;
+                searchString = resultItem.url as any;
+            } catch (error) {
+                console.log(`[ERROR] There was en error searching for '${searchString}' in guild "${interaction.guild?.name}`);
+                await interaction.editReply({embeds: [embedErrorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
+                return;
+            }
         }
 
         if(await createVoiceConnection(interaction, clientAdapter)){    
             createAudioPlayerForGuild(interaction, clientAdapter);
-            addSongToGuildQueue(interaction, clientAdapter, ytUrl);
+            addSongToGuildQueue(interaction, clientAdapter, searchString);
         }
     },
 }
@@ -133,7 +141,7 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
         filter: "audioonly", 
         quality: "lowestaudio", 
         liveBuffer: 3000,
-        highWaterMark: 1 << 25,
+        highWaterMark: 1 << 22,
     });
     var resource = createAudioResource(stream, {inputType: StreamType.Arbitrary});
     customGuild.player!.play(resource);

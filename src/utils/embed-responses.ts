@@ -74,11 +74,14 @@ function estimateTimeUntilSongPlayed(interaction: ChatInputCommandInteraction, c
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
     var totalQueueLengthSeconds = 0;
-    customGuild.songQueue.forEach((song, index) => {
-        if(index === 0) {return;}
-        const seconds = Number(song.duration);
-        totalQueueLengthSeconds += seconds;
-    });
+
+    if(customGuild.songQueue.length !== 1){
+        customGuild.songQueue.forEach((song, index) => {
+            if(index === customGuild.songQueue.length - 1){return;}
+            const seconds = Number(song.duration);
+            totalQueueLengthSeconds += seconds;
+        });
+    }
 
     const currentSongRemainingTime = Math.floor(Number(customGuild.currentSong?.duration) - (customGuild.currentResource?.playbackDuration! / 1000)); // subtract played duration from total duration
     totalQueueLengthSeconds += currentSongRemainingTime; 
