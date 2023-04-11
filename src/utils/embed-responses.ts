@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { ClientAdaptation, Song } from "../types/bot-types";
+import ytpl from "ytpl";
 
 const EMBED_COLOR_ERROR = '#c71224';
 const EMBED_COLOR_SUCCESSFUL = '#00aaff';
@@ -50,6 +51,31 @@ export function embedErrorOcurred(errorMessage: string, clientAdapter: ClientAda
         .setAuthor({name: 'Something went wrong', iconURL: clientAdapter.client.user?.avatarURL()!})
         .setTimestamp()
 
+    return embedMessage;
+}
+
+export function embedAddedPlaylistToQueue(playlist: ytpl.Result, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
+
+    var totalPlaylistDuration = 0;
+
+    playlist.items.forEach((song) => {
+        const seconds = Number(song.durationSec);
+        totalPlaylistDuration += seconds;
+    });
+    const convertedPlaylistLength = convertSecondsToHoursMinuteSeconds(totalPlaylistDuration.toString());
+
+    const embedMessage = new EmbedBuilder()
+        .setColor(EMBED_COLOR_SUCCESSFUL)
+        .setTitle(playlist.title)
+        .setURL(playlist.url)
+        .setAuthor({name: 'Added playlist', iconURL: clientAdapter.client.user?.avatarURL()!})
+        .setThumbnail(playlist.thumbnails[3].url)
+        .addFields(
+            {name: 'Playlist creator', value: playlist.author.name, inline: true},
+            {name: 'Number of songs added', value: playlist.items.length.toString(), inline: true},
+            {name: 'Playlist length', value: convertedPlaylistLength, inline: true },
+        )
+        .setTimestamp();
     return embedMessage;
 }
 

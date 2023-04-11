@@ -7,6 +7,7 @@
     "node": "^19.8.1",
     "sodium": "^3.0.2",
     "ytdl-core": "https://github.com/khlevon/node-ytdl-core.git#v4.11.3-patch.1",
+    "ytpl": "^2.3.0",
     "ytsr": "^3.8.1"
   },
   "devDependencies": {
