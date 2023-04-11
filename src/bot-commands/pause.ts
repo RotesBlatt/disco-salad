@@ -18,13 +18,13 @@ export default {
         }
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-        if(!customGuild.player){
+        if(!customGuild.currentSong){
             console.log(`[WARNING] Can not pause song because no song is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply({embeds: [embedErrorOcurred("Can not pause song because no song is playing", clientAdapter)]});
             return;
         } 
 
-        const successfulPause = customGuild.player.pause(true);
+        const successfulPause = customGuild.player!.pause(true);
         if(successfulPause){
             await interaction.editReply(":pause_button: **Pausing song**");
         } else {

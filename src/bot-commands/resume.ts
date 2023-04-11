@@ -18,13 +18,13 @@ export default {
         }
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-        if(!customGuild.player){
+        if(!customGuild.currentSong){
             console.log(`[WARNING] Can not resume song because no song is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply({embeds: [embedErrorOcurred("Can not resume song because no song is playing", clientAdapter)]});
             return;
         }
 
-        const successfulResume = customGuild.player.unpause();
+        const successfulResume = customGuild.player!.unpause();
         if(successfulResume){
             await interaction.editReply(":play_pause: **Resuming song**");
         } else {

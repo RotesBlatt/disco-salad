@@ -18,11 +18,11 @@ export default {
         }
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-        if(!customGuild.player){
+        if(!customGuild.currentSong){
             console.log(`[WARNING] Can not skip song because no song is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply({embeds: [embedErrorOcurred("Can not skip song because no song is playing", clientAdapter)]});
         } else {
-            const successfulSkip = customGuild.player.stop();
+            const successfulSkip = customGuild.player!.stop();
             if(successfulSkip){
                 await interaction.editReply(":track_next: **Skipping song**");
             } else {

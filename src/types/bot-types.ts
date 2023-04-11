@@ -1,4 +1,4 @@
-import { Client, Collection } from "discord.js";
+import { ChatInputCommandInteraction, Client, Collection } from "discord.js";
 import { AudioPlayer, AudioResource, VoiceConnection } from "@discordjs/voice";
 
 export class CustomGuild {
@@ -7,6 +7,8 @@ export class CustomGuild {
     currentResource: AudioResource | undefined = undefined;
     currentSong: Song | undefined = undefined;
     songQueue: Song[] = [];
+    songQueuePageIndex: number = 1;
+    lastQueueInteraction: ChatInputCommandInteraction | undefined = undefined;
     timeout: NodeJS.Timer | undefined = undefined;
     loopFirstInQueue: boolean = false;
 }
