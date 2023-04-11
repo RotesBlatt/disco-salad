@@ -12,6 +12,7 @@
       </ul>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#acknowledgments">Acknowledgements</a</li>
   </ol>
 </details>
 
@@ -92,4 +93,9 @@ This is an example of how to list things you need to use the software and how to
     - [ ] Amount of times a song has been played
     - [ ] Most played artist
     - [ ] Who requested the song
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Acknowledgements -->
+## Acknowledgements
+Thanks to Smn279#4383 for the idea of the skipping to command
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
