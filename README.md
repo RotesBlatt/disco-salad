@@ -76,7 +76,7 @@ This is an example of how to list things you need to use the software and how to
     - [x] Current song looping
     - [ ] Song queue looping
     - [x] Show the current playing song to the user
-    - [ ] Show the song queue to the user
+    - [x] Show the song queue to the user
     - [ ] Remove songs at specific index from the queue
 - [ ] Create server settings
   - [ ] Listen to only one text-channel for commands
