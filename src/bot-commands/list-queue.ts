@@ -1,7 +1,7 @@
+import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ClientAdaptation, CustomGuild } from "../types/bot-types";
 import { embedErrorOcurred, embedShowSongQueueToUser, rowButtonsQueuePages } from "../utils/embed-responses";
-import { isUserInVoiceChannel } from "../utils/voice-connection";
-import { ButtonBuilder, ButtonInteraction, CacheType, ChatInputCommandInteraction, EmbedBuilder, InteractionCollector, SlashCommandBuilder } from "discord.js";
+import {  ButtonInteraction, ChatInputCommandInteraction, InteractionCollector, SlashCommandBuilder } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()
