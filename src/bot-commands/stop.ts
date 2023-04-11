@@ -18,13 +18,13 @@ export default {
         }
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-        if(!customGuild.player){
+        if(!customGuild.currentSong){
             console.log(`[WARNING] Can not stop the bot because nothing is playing in guild "${interaction.guild?.name}"`)
             await interaction.editReply({embeds: [embedErrorOcurred("Can not stop the bot because nothing is playing", clientAdapter)]});
             return;
         } 
 
-        customGuild.player.stop();
+        customGuild.player!.stop();
         customGuild.player = undefined;
         clearCustomGuildProperties(interaction, clientAdapter);
 
