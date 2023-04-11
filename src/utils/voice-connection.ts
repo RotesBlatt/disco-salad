@@ -53,4 +53,6 @@ export async function clearCustomGuildProperties(interaction: ChatInputCommandIn
     customGuild.currentSong = undefined;
     customGuild.songQueue = [];
     customGuild.loopFirstInQueue = false;
+    customGuild.songQueuePageIndex = 1;
+    customGuild.lastQueueInteraction = undefined;
 }
