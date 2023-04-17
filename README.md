@@ -79,7 +79,7 @@ This is an example of how to list things you need to use the software and how to
     - [x] Show the current playing song to the user
     - [x] Show the song queue to the user
     - [x] Remove songs at specific index from the queue
-    - [ ] Skip to specific song position in queue
+    - [x] Skip to specific song position in queue
 - [ ] Create server settings
   - [ ] Listen to only one text-channel for commands
   - [ ] Join only one specific channel
