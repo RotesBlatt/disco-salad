@@ -93,6 +93,7 @@ This is an example of how to list things you need to use the software and how to
     - [ ] Amount of times a song has been played
     - [ ] Most played artist
     - [ ] Who requested the song
+- [ ] Ask chatgpt for a song suggestion by giving it a topic/theme
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Acknowledgements -->
