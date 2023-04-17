@@ -31,11 +31,13 @@ export default {
         
         stopCollector(collectorBack as any, collectorNext as any, customGuild, interaction);
 
+        const pages = Math.ceil(customGuild.songQueue.length / 10);
+
         const row = rowButtonsQueuePages();
         customGuild.songQueuePageIndex = 1;
 
         console.log(`[INFO] Showing song queue with ${customGuild.songQueue.length} songs in guild "${interaction.guild?.name}"`);
-        await interaction.editReply({embeds: [embedShowSongQueueToUser(interaction, clientAdapter, customGuild.songQueuePageIndex)], components: [row]});
+        await interaction.editReply({embeds: [embedShowSongQueueToUser(interaction, clientAdapter, customGuild.songQueuePageIndex)], components: pages === 1 ? [] : [row]});
     },
 }
 
