@@ -31,6 +31,10 @@ export default {
 
         var removeIndex = interaction.options.get('position')?.value as number - 1;
 
+        if(customGuild.loopFirstInQueue || customGuild.loopSongQueue){
+            removeIndex += 1;
+        }
+
         if(removeIndex > customGuild.songQueue.length || removeIndex < 0){
             console.log(`[WARNING] The position ${removeIndex + 1} is not a valid position in the queue in guild "${interaction.guild?.name}"`);
             await interaction.editReply({embeds: [embedErrorOcurred(`The position (${removeIndex + 1}) is not a valid position in the queue`, clientAdapter)]});

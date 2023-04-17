@@ -71,11 +71,11 @@ This is an example of how to list things you need to use the software and how to
     - [x] Pausing and resuming the music
     - [x] Skipping the current playing song
     - [x] Stopping the currently playing song and clearing the song queue
-- [ ] Expanding the basics
+- [x] Expanding the basics
     - [x] Search for song by searching for the given title (ytsr)
     - [x] Enqueue songs by YT-link to playlist (ytpl)
     - [x] Current song looping
-    - [ ] Song queue looping
+    - [x] Song queue looping
     - [x] Show the current playing song to the user
     - [x] Show the song queue to the user
     - [x] Remove songs at specific index from the queue

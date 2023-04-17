@@ -139,8 +139,12 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
         }
 
         try {
-            if(customGuild.loopFirstInQueue){
-                var song = customGuild.songQueue.at(0)!;
+            if(customGuild.loopFirstInQueue){ 
+                const index = customGuild.loopSongQueue ? customGuild.loopSongQueueIndex : 0;
+                var song = customGuild.songQueue.at(index)!;
+            } else if(customGuild.loopSongQueue){
+                var song = customGuild.songQueue.at(customGuild.loopSongQueueIndex)!;
+                shiftSongQueueIndex(customGuild);
             } else {
                 var song = customGuild.songQueue.shift()!;
             }
@@ -165,6 +169,13 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
         while(!customGuild.currentResource?.ended){
             await sleep(1000);
         }
+    }
+}
+
+function shiftSongQueueIndex(customGuild: CustomGuild){
+    customGuild.loopSongQueueIndex += 1;
+    if(customGuild.loopSongQueueIndex > customGuild.songQueue.length){
+        customGuild.loopSongQueueIndex = 0;
     }
 }
 

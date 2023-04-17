@@ -1,12 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
-import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import ytpl from "ytpl";
+import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
 
 const EMBED_COLOR_ERROR = '#c71224';
 const EMBED_COLOR_SUCCESSFUL = '#00aaff';
 
 export function embedAddedSongToQueue(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation): EmbedBuilder {
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+    const positionInQueue = customGuild.loopFirstInQueue || customGuild.loopSongQueue ? (customGuild.songQueue.length - 1).toString()  : customGuild.songQueue.length.toString();
     const embedMessage = new EmbedBuilder()
         .setColor(EMBED_COLOR_SUCCESSFUL)
         .setTitle(song.title)
@@ -17,7 +18,7 @@ export function embedAddedSongToQueue(song: Song, interaction: ChatInputCommandI
             {name: 'Channel', value: song.authorName, inline: true},
             {name: 'Song duration', value: convertSecondsToHoursMinuteSeconds(song.duration), inline: true},
             {name: 'Estimated time until playing', value: estimateTimeUntilSongPlayed(interaction, clientAdapter), inline: true},
-            {name: 'Position in queue', value: customGuild.songQueue.length.toString()}
+            {name: 'Position in queue', value: positionInQueue}
         )
         .setTimestamp();
     
@@ -87,7 +88,7 @@ export function embedShowSongQueueToUser(interaction: ChatInputCommandInteractio
     const embedMessage = new EmbedBuilder()
         .setColor(EMBED_COLOR_SUCCESSFUL)
         .setTitle(`Queue for ${interaction.guild?.name}`)
-        .setFooter({text: `Page ${currentPage}/${pages} | Loop: ${!customGuild.loopFirstInQueue ? '❌' : '✅'}`, iconURL: interaction.user.avatarURL()!})
+        .setFooter({text: `Page ${currentPage}/${pages} | Loop: ${!customGuild.loopFirstInQueue ? '❌' : '✅'} | Queue Loop: ${!customGuild.loopSongQueue ? '❌' : '✅'}`, iconURL: interaction.user.avatarURL()!});
 
     
     const queueDescriptionSongs = createQueueBody(customGuild, 10, currentPage);

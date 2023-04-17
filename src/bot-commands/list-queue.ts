@@ -19,7 +19,7 @@ export default {
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
-        if(customGuild.songQueue.length === 0 || !customGuild.currentSong){
+        if(customGuild.songQueue.length === 0 || !customGuild.currentSong || (customGuild.songQueue.length === 1 && customGuild.loopFirstInQueue)){
             console.log(`[WARNING] Can not show song queue because no song is in the queue in guild "${interaction.guild?.name}"`);
             await interaction.editReply({embeds: [embedErrorOcurred("Can not show song queue because no song is playing or the queue is empty", clientAdapter)]});
             return;
