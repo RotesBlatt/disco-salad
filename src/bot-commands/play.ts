@@ -1,36 +1,85 @@
+import ytsr from "ytsr";
+import ytpl from "ytpl";
 import ytdl from "ytdl-core";
 import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
+import { embedAddedPlaylistToQueue, embedAddedSongToQueue, embedErrorOcurred, embedNowPlayingSong } from "../utils/embed-responses";
 
 export default {
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Searches and plays the song provided')
         .addStringOption(option => option
-            .setName('url')
-            .setDescription('The YouTube url of the song you want to play')
+            .setName('search')
+            .setDescription('The YouTube url or the name of the song you want to play')
             .setRequired(true)
             )
         .setDMPermission(false),
     
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
-        const ytUrl = interaction.options.get('url')?.value as string;
-        const isValidUrl = ytdl.validateURL(ytUrl);
-
         await interaction.deferReply();
 
-        if(!isValidUrl){
-            await interaction.editReply('The song you requested is not a valid URL from YouTube');
-            return;
+        var searchString = interaction.options.get('search')?.value as string;
+        const isValidVideoUrl = ytdl.validateURL(searchString);
+
+        
+
+        if(!isValidVideoUrl){
+            try {
+                const playlistId = await ytpl.getPlaylistID(searchString);
+                const playlist = await ytpl(playlistId);
+                
+                if(await createVoiceConnection(interaction, clientAdapter)){    
+                    createAudioPlayerForGuild(interaction, clientAdapter);
+                    addPlaylistSongsToGuildQueue(interaction, clientAdapter, playlist);
+                }
+                return;
+            } catch (error) {
+                try {
+                    const searchResults = await ytsr(searchString, {limit: 1}); // some weird error gets printed to the console but doesn't affect the actual output
+                    const resultItem = searchResults.items[0] as any;
+                    searchString = resultItem.url as any;
+                } catch (error) {
+                    console.log(`[ERROR] There was en error searching for '${searchString}' in guild "${interaction.guild?.name}`);
+                    await interaction.editReply({embeds: [embedErrorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
+                    return;
+                }
+            }
+
         }
 
         if(await createVoiceConnection(interaction, clientAdapter)){    
             createAudioPlayerForGuild(interaction, clientAdapter);
-            addSongToGuildQueue(interaction, clientAdapter, ytUrl);
+            addSongToGuildQueue(interaction, clientAdapter, searchString);
         }
     },
+}
+
+async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result){
+    console.log(`[INFO] Fetching Playlist songs for guild: "${interaction.guild?.name}"`);
+    const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+
+    playlist.items.forEach(async (video) => {
+       const song: Song = {
+        url: video.url,
+        title: video.title,
+        authorName: video.author.name,
+        duration: video.durationSec?.toString()!,
+        thumbnailUrl: video.thumbnails[3].url!,
+        requestedByUsername: interaction.user.username,
+        requestedByTag: interaction.user.tag,
+       } 
+       customGuild.songQueue.push(song);
+    })
+
+    if(customGuild.player!.checkPlayable()){
+        console.log(`[INFO] Added ${playlist.items.length} songs from the playlist to the queue in guild "${interaction.guild?.name}"`);
+        await interaction.editReply({embeds: [embedAddedPlaylistToQueue(playlist, interaction, clientAdapter)]});
+    } else {
+        playSongFromQueue(interaction, clientAdapter, playlist);
+    }
 }
 
 async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, ytUrl: string) {
@@ -38,20 +87,14 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
 
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
-    const songInfo = await ytdl.getBasicInfo(ytUrl);
-    const song: Song = {
-        url: ytUrl,
-        title: songInfo.videoDetails.title,
-        requestedBy: interaction.user.username,            
-    }
+    const song = await retrieveSongInformation(interaction, ytUrl);
     customGuild.songQueue.push(song);
 
     if(customGuild.player!.checkPlayable()){
-        await interaction.editReply(`Added song: "${song.title}" to the queue`);
+        await interaction.editReply({embeds: [embedAddedSongToQueue(song, interaction, clientAdapter)]});
         console.log(`[INFO] Added song: "${song.title}" to the queue in guild "${interaction.guild?.name}"`);
-        return;
     } else {
-        playSongFromQueue(interaction, clientAdapter);
+        playSongFromQueue(interaction, clientAdapter, undefined);
     }
 }
 
@@ -64,7 +107,7 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     player.on("error", async error => {
         console.log(`[ERROR] There was an error playing a song in guild "${interaction.guild}"`);
         console.log(error);
-        await interaction.channel?.send(`There was an error playing this song, skipping to the next song`);
+        await interaction.channel?.send({embeds: [embedErrorOcurred(`There was an error playing this song, skipping to the next song`, clientAdapter)]});
     })
     .on("stateChange", (oldState, newState) => {
         if(oldState.status === "playing" && newState.status === "idle"){
@@ -82,11 +125,13 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     customGuild.player = player;
 }
 
-async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
+async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result | undefined) {
     console.log(`[INFO] Started playing in guild: "${interaction.guild?.name}"`);
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+    var isFirstIteration = true;
 
     while(customGuild.voiceConnection){
+        
         if(customGuild.songQueue.length === 0 && customGuild.currentResource?.ended){ 
             customGuild.currentSong = undefined;
             console.log(`[INFO] The song queue is empty in guild "${interaction.guild?.name}"`)
@@ -94,8 +139,12 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
         }
 
         try {
-            if(customGuild.loopFirstInQueue){
-                var song = customGuild.songQueue.at(0)!;
+            if(customGuild.loopFirstInQueue){ 
+                const index = customGuild.loopSongQueue ? customGuild.loopSongQueueIndex : 0;
+                var song = customGuild.songQueue.at(index)!;
+            } else if(customGuild.loopSongQueue){
+                var song = customGuild.songQueue.at(customGuild.loopSongQueueIndex)!;
+                shiftSongQueueIndex(customGuild);
             } else {
                 var song = customGuild.songQueue.shift()!;
             }
@@ -103,15 +152,30 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
             customGuild.currentSong = song;
         } catch (error) {
             console.log('[ERROR] There was an error playing the song ');
-            await interaction.channel?.send('There was en error playing that song, skipping ahead');
+            await interaction.channel?.send({embeds: [embedErrorOcurred('There was en error playing that song, skipping ahead', clientAdapter)]});
             continue;
         }
         
-        await replyWithSongInfo(song, interaction);
+        if(isFirstIteration ){
+            isFirstIteration = false;
+            if(playlist){
+                await replyWithPlaylistInfo(playlist, interaction, clientAdapter);
+            } else {
+                await replyWithSongInfo(song, interaction, clientAdapter);
+            }
+        }
+        
 
         while(!customGuild.currentResource?.ended){
             await sleep(1000);
         }
+    }
+}
+
+function shiftSongQueueIndex(customGuild: CustomGuild){
+    customGuild.loopSongQueueIndex += 1;
+    if(customGuild.loopSongQueueIndex > customGuild.songQueue.length){
+        customGuild.loopSongQueueIndex = 0;
     }
 }
 
@@ -120,21 +184,48 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
         filter: "audioonly", 
         quality: "lowestaudio", 
         liveBuffer: 3000,
-        highWaterMark: 1 << 25,
+        highWaterMark: 1 << 22,
     });
     var resource = createAudioResource(stream, {inputType: StreamType.Arbitrary});
     customGuild.player!.play(resource);
     customGuild.currentResource = resource;
 }
 
-async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction){
+async function retrieveSongInformation(interaction: ChatInputCommandInteraction, ytUrl: string){
+    const songInfo = await ytdl.getBasicInfo(ytUrl);
+    const videoDetails = songInfo.videoDetails;
+
+    const song: Song = {
+        url: ytUrl,
+        title: videoDetails.title,
+        thumbnailUrl: videoDetails.thumbnails[3].url, // size: 336 x 188 px
+        authorName: videoDetails.author.name,
+        duration: videoDetails.lengthSeconds,
+        requestedByUsername: interaction.user.username,  
+        requestedByTag: interaction.user.tag,          
+    }
+    return song;
+}
+
+async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
     if(!song){ return; }
 
-    console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedBy} in guild "${interaction.guild?.name}"`)
+    const embed = embedNowPlayingSong(song, interaction, clientAdapter);
+    console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedByUsername}" in guild "${interaction.guild?.name}"`);
     if(interaction.replied){
-        await interaction.channel?.send(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
+        await interaction.channel?.send({embeds: [embed]});
     } else {
-        await interaction.editReply(`Now playing "${song.title}" requested by "${song.requestedBy}"`);
+        await interaction.editReply({embeds: [embed]});
+    }
+}
+
+async function replyWithPlaylistInfo(playlist: ytpl.Result, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
+    const embed = embedAddedPlaylistToQueue(playlist, interaction, clientAdapter);
+    console.log(`[INFO] Added ${playlist.items.length} songs from the playlist to the queue in guild "${interaction.guild?.name}"`);
+    if(interaction.replied){
+        await interaction.channel?.send({embeds: [embed]});
+    } else {
+        await interaction.editReply({embeds: [embed]});
     }
 }
 

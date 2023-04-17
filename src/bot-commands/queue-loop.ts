@@ -5,8 +5,8 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('loop')
-        .setDescription('Loop or un-loop current playing song')
+        .setName('queueloop')
+        .setDescription('Loop or un-loop the song queue')
         .setDMPermission(false),
     
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
@@ -18,18 +18,21 @@ export default {
         }
 
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
-        if(!customGuild.currentSong){
-            console.log(`[WARNING] Can not loop or un-loop song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not loop or un-loop song because no song is playing", clientAdapter)]});
+        if(customGuild.songQueue.length === 0 || !customGuild.currentSong || (customGuild.songQueue.length === 1 && customGuild.loopFirstInQueue)){
+            console.log(`[WARNING] Can not loop or un-loop the song queue because the queue is empty in guild "${interaction.guild?.name}"`);
+            await interaction.editReply({embeds: [embedErrorOcurred("Can not loop or un-loop song queue because no song is in the queue", clientAdapter)]});
             return;
         } 
 
-        customGuild.loopFirstInQueue = !customGuild.loopFirstInQueue;
-        if(customGuild.loopFirstInQueue){
-            customGuild.songQueue.unshift(customGuild.currentSong);
+        customGuild.loopSongQueue = !customGuild.loopSongQueue;
+        if(customGuild.loopSongQueue){
+            customGuild.loopSongQueueIndex = 0;
+            customGuild.songQueue.unshift(customGuild.currentSong!);
             await interaction.editReply(":repeat_one: **Enabled**");
         } else {
-            customGuild.songQueue.shift();
+            for(var i = 0; i < customGuild.loopSongQueueIndex; i++){
+                customGuild.songQueue.shift();
+            }
             await interaction.editReply(":repeat_one: **Disabled**");
         }
     },

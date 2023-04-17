@@ -28,6 +28,6 @@ export default {
         customGuild.voiceConnection = connection;
 
         console.log(`[INFO] Joining voice channel with id "${userVoiceChannelId}" in guild "${interaction.guild?.name}"`);
-        await interaction.editReply('Joining voice channel');
+        await interaction.editReply('**Joining voice channel**');
     },
 }

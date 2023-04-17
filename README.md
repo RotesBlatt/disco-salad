@@ -12,6 +12,7 @@
       </ul>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -69,24 +70,33 @@ This is an example of how to list things you need to use the software and how to
     - [x] Song queue for the music 
     - [x] Pausing and resuming the music
     - [x] Skipping the current playing song
-    - [ ] Stopping playing the current song queue
-- [ ] Expanding the basics
-    - [ ] Search for song by searching for the given title (ytsr)
-    - [ ] Enqueue songs by YT-link to playlist (ytpl)
+    - [x] Stopping the currently playing song and clearing the song queue
+- [x] Expanding the basics
+    - [x] Search for song by searching for the given title (ytsr)
+    - [x] Enqueue songs by YT-link to playlist (ytpl)
     - [x] Current song looping
-    - [ ] Current song queue looping
-    - [ ] Show the current playing song to the user
-        - [ ] Title of the song
-        - [ ] Timestamp of where we are in the song
-    - [ ] Show the song queue to the user
+    - [x] Song queue looping
+    - [x] Show the current playing song to the user
+    - [x] Show the song queue to the user
+    - [x] Remove songs at specific index from the queue
+    - [x] Skip to specific song position in queue
 - [ ] Create server settings
   - [ ] Listen to only one text-channel for commands
   - [ ] Join only one specific channel
   - [ ] Restrict bot from changing channel when doing (/join)
   - [ ] Only users with certain permissions can use the bot
-- [ ] Use embeds for user interaction
+  - [ ] Should show current playing song whenever it starts playing
+  - [ ] How many songs should be retrieved from a playlist when linking a playlist
+- [x] Use embeds for user interaction
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
     - [ ] Amount of times a song has been played
+    - [ ] Most played artist
     - [ ] Who requested the song
+- [ ] Ask chatgpt for a song suggestion by giving it a topic/theme
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Acknowledgements -->
+## Acknowledgements
+Thanks to Smn279#4383 for the idea of the skipping to command
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
