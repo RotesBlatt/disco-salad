@@ -46,14 +46,19 @@ async function skipToSongInQueue(interaction: ChatInputCommandInteraction, clien
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
 
     if(!skipTo) {return true;}
+    var shiftValue = skipTo;
 
-    if(!(skipTo > 0 && skipTo <= customGuild.songQueue.length)){
+    if(customGuild.loopFirstInQueue || customGuild.loopSongQueue){
+        shiftValue += 1;
+    }
+
+    if(!(skipTo > 0 && shiftValue <= customGuild.songQueue.length)){
         console.log(`[WARNING] Can not skip to specific song because ${skipTo} is not a valid position in the queue in guild "${interaction.guild?.name}"`);
         await interaction.editReply({embeds: [embedErrorOcurred(`Can not skip to specific song because ${skipTo} is not a valid position in the queue`, clientAdapter)]});
         return false;
     }
 
-    for(var i = 0; i < skipTo - 1; i++){
+    for(var i = 0; i < shiftValue - 1; i++){
         customGuild.songQueue.shift();
     }
     return true;

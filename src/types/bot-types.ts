@@ -11,6 +11,8 @@ export class CustomGuild {
     lastQueueInteraction: ChatInputCommandInteraction | undefined = undefined;
     timeout: NodeJS.Timer | undefined = undefined;
     loopFirstInQueue: boolean = false;
+    loopSongQueue: boolean = false;
+    loopSongQueueIndex: number = 0;
 }
 
 export interface Song {
