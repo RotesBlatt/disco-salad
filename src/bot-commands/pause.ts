@@ -1,5 +1,5 @@
+import { errorOcurred } from "../embeds/embeds";
 import { ClientAdaptation } from "../types/bot-types";
-import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -20,7 +20,7 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(!customGuild.currentSong){
             console.log(`[WARNING] Can not pause song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not pause song because no song is playing", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not pause song because no song is playing", clientAdapter)]});
             return;
         } 
 
@@ -28,7 +28,7 @@ export default {
         if(successfulPause){
             await interaction.editReply(":pause_button: **Pausing song**");
         } else {
-            await interaction.editReply({embeds: [embedErrorOcurred("Something went wrong while pausing your song", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Something went wrong while pausing your song", clientAdapter)]});
         }
     },
 }

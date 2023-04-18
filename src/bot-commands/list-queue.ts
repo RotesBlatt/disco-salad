@@ -1,7 +1,7 @@
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ClientAdaptation, CustomGuild } from "../types/bot-types";
-import { embedErrorOcurred, embedShowSongQueueToUser, rowButtonsQueuePages } from "../utils/embed-responses";
-import {  ButtonInteraction, ChatInputCommandInteraction, InteractionCollector, SlashCommandBuilder } from "discord.js";
+import { errorOcurred, rowButtonsQueuePages, showSongQueueToUser } from "../embeds/embeds";
+import { ButtonInteraction, ChatInputCommandInteraction, InteractionCollector, SlashCommandBuilder } from "discord.js";
 
 export default {
     data: new SlashCommandBuilder()
@@ -21,7 +21,7 @@ export default {
 
         if(customGuild.songQueue.length === 0 || !customGuild.currentSong || (customGuild.songQueue.length === 1 && customGuild.loopFirstInQueue)){
             console.log(`[WARNING] Can not show song queue because no song is in the queue in guild "${interaction.guild?.name}"`);
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not show song queue because no song is playing or the queue is empty", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not show song queue because no song is playing or the queue is empty", clientAdapter)]});
             return;
         }
 
@@ -37,7 +37,7 @@ export default {
         customGuild.songQueuePageIndex = 1;
 
         console.log(`[INFO] Showing song queue with ${customGuild.songQueue.length} songs in guild "${interaction.guild?.name}"`);
-        await interaction.editReply({embeds: [embedShowSongQueueToUser(interaction, clientAdapter, customGuild.songQueuePageIndex)], components: pages === 1 ? [] : [row]});
+        await interaction.editReply({embeds: [showSongQueueToUser(interaction, clientAdapter, customGuild.songQueuePageIndex)], components: pages === 1 ? [] : [row]});
     },
 }
 
@@ -48,11 +48,11 @@ function setUpCollectorBack(interaction: ChatInputCommandInteraction, clientAdap
     collector.on('collect', async i => {
         const index = customGuild.songQueuePageIndex - 1;
         if(index <= 0){
-            await i.update({embeds: [embedShowSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
+            await i.update({embeds: [showSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
             return;
         }
         customGuild.songQueuePageIndex = index;
-        await i.update({embeds: [embedShowSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
+        await i.update({embeds: [showSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
     });
 
     collector.on("end", () => {
@@ -71,11 +71,11 @@ function setUpCollectorNext(interaction: ChatInputCommandInteraction, clientAdap
         const maxPages = Math.ceil(customGuild.songQueue.length / 10);
         const index = customGuild.songQueuePageIndex + 1;
         if(index > maxPages){
-            await i.update({embeds: [embedShowSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
+            await i.update({embeds: [showSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
             return;
         }
         customGuild.songQueuePageIndex += 1;
-        await i.update({embeds: [embedShowSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
+        await i.update({embeds: [showSongQueueToUser(i as any, clientAdapter, customGuild.songQueuePageIndex)]});
     });
 
     collector.on("end", () => {

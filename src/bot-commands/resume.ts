@@ -1,5 +1,5 @@
+import { errorOcurred } from "../embeds/embeds";
 import { ClientAdaptation } from "../types/bot-types";
-import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -20,7 +20,7 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(!customGuild.currentSong){
             console.log(`[WARNING] Can not resume song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not resume song because no song is playing", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not resume song because no song is playing", clientAdapter)]});
             return;
         }
 
@@ -28,7 +28,7 @@ export default {
         if(successfulResume){
             await interaction.editReply(":play_pause: **Resuming song**");
         } else {
-            await interaction.editReply({embeds: [embedErrorOcurred("Something went wrong while resuming your song", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Something went wrong while resuming your song", clientAdapter)]});
         }
     },
 }

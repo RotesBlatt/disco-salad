@@ -1,5 +1,5 @@
+import { errorOcurred } from "../embeds/embeds";
 import { ClientAdaptation } from "../types/bot-types";
-import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -25,7 +25,7 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(customGuild.songQueue.length === 0){
             console.log(`[WARNING] Can not remove song because no song is in song queue in guild "${interaction.guild?.name}"`)
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not remove song because no song is in the queue", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not remove song because no song is in the queue", clientAdapter)]});
             return;
         }
 
@@ -37,7 +37,7 @@ export default {
 
         if(removeIndex > customGuild.songQueue.length || removeIndex < 0){
             console.log(`[WARNING] The position ${removeIndex + 1} is not a valid position in the queue in guild "${interaction.guild?.name}"`);
-            await interaction.editReply({embeds: [embedErrorOcurred(`The position (${removeIndex + 1}) is not a valid position in the queue`, clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred(`The position (${removeIndex + 1}) is not a valid position in the queue`, clientAdapter)]});
             return;
         }
 
