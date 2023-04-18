@@ -1,5 +1,5 @@
+import { errorOcurred } from "../embeds/embeds";
 import { ClientAdaptation } from "../types/bot-types";
-import { embedErrorOcurred } from "../utils/embed-responses";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -20,7 +20,7 @@ export default {
         const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
         if(customGuild.songQueue.length === 0 || !customGuild.currentSong || (customGuild.songQueue.length === 1 && customGuild.loopFirstInQueue)){
             console.log(`[WARNING] Can not loop or un-loop the song queue because the queue is empty in guild "${interaction.guild?.name}"`);
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not loop or un-loop song queue because no song is in the queue", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not loop or un-loop song queue because no song is in the queue", clientAdapter)]});
             return;
         } 
 

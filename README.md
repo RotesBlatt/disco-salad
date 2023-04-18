@@ -95,6 +95,7 @@ This is an example of how to list things you need to use the software and how to
     - [ ] Most played artist
     - [ ] Who requested the song
 - [ ] Ask chatgpt for a song suggestion by giving it a topic/theme
+- [ ] Spotify streaming option (https://developer.spotify.com/documentation/web-playback-sdk/reference#spotifyplayer, https://www.npmjs.com/package/@discord-player/extractor)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Acknowledgements -->

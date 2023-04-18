@@ -1,8 +1,7 @@
-import { joinVoiceChannel } from "@discordjs/voice";
 import { ClientAdaptation } from "../types/bot-types";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
+import { errorOcurred, nowPlayingSong } from "../embeds/embeds";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { embedErrorOcurred, embedNowPlayingSong } from "../utils/embed-responses";
 
 export default {
     data: new SlashCommandBuilder()
@@ -22,12 +21,12 @@ export default {
 
         if(!customGuild.currentSong){
             console.log(`[WARNING] Can not show current playing song because no song is playing in guild "${interaction.guild?.name}"`)
-            await interaction.editReply({embeds: [embedErrorOcurred("Can not show current playing song because no song is playing", clientAdapter)]});
+            await interaction.editReply({embeds: [errorOcurred("Can not show current playing song because no song is playing", clientAdapter)]});
             return;
         }
         
         const song = customGuild.currentSong!;
         console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedByUsername}" in guild "${interaction.guild?.name}"`);
-        await interaction.editReply({embeds: [embedNowPlayingSong(song, interaction, clientAdapter)]});
+        await interaction.editReply({embeds: [nowPlayingSong(song, interaction, clientAdapter)]});
     },
 }
