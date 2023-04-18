@@ -5,7 +5,7 @@ import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
-import { embedAddedPlaylistToQueue, embedAddedSongToQueue, embedErrorOcurred, embedNowPlayingSong } from "../utils/embed-responses";
+import { addedPlaylistToQueue, addedSongToQueue, errorOcurred, nowPlayingSong } from "../embeds/embeds";
 
 export default {
     data: new SlashCommandBuilder()
@@ -43,7 +43,7 @@ export default {
                     searchString = resultItem.url as any;
                 } catch (error) {
                     console.log(`[ERROR] There was en error searching for '${searchString}' in guild "${interaction.guild?.name}`);
-                    await interaction.editReply({embeds: [embedErrorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
+                    await interaction.editReply({embeds: [errorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
                     return;
                 }
             }
@@ -76,7 +76,7 @@ async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInterac
 
     if(customGuild.player!.checkPlayable()){
         console.log(`[INFO] Added ${playlist.items.length} songs from the playlist to the queue in guild "${interaction.guild?.name}"`);
-        await interaction.editReply({embeds: [embedAddedPlaylistToQueue(playlist, interaction, clientAdapter)]});
+        await interaction.editReply({embeds: [addedPlaylistToQueue(playlist, interaction, clientAdapter)]});
     } else {
         playSongFromQueue(interaction, clientAdapter, playlist);
     }
@@ -91,7 +91,7 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
     customGuild.songQueue.push(song);
 
     if(customGuild.player!.checkPlayable()){
-        await interaction.editReply({embeds: [embedAddedSongToQueue(song, interaction, clientAdapter)]});
+        await interaction.editReply({embeds: [addedSongToQueue(song, interaction, clientAdapter)]});
         console.log(`[INFO] Added song: "${song.title}" to the queue in guild "${interaction.guild?.name}"`);
     } else {
         playSongFromQueue(interaction, clientAdapter, undefined);
@@ -107,7 +107,7 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     player.on("error", async error => {
         console.log(`[ERROR] There was an error playing a song in guild "${interaction.guild}"`);
         console.log(error);
-        await interaction.channel?.send({embeds: [embedErrorOcurred(`There was an error playing this song, skipping to the next song`, clientAdapter)]});
+        await interaction.channel?.send({embeds: [errorOcurred(`There was an error playing this song, skipping to the next song`, clientAdapter)]});
     })
     .on("stateChange", (oldState, newState) => {
         if(oldState.status === "playing" && newState.status === "idle"){
@@ -152,7 +152,7 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
             customGuild.currentSong = song;
         } catch (error) {
             console.log('[ERROR] There was an error playing the song ');
-            await interaction.channel?.send({embeds: [embedErrorOcurred('There was en error playing that song, skipping ahead', clientAdapter)]});
+            await interaction.channel?.send({embeds: [errorOcurred('There was en error playing that song, skipping ahead', clientAdapter)]});
             continue;
         }
         
@@ -195,6 +195,7 @@ async function retrieveSongInformation(interaction: ChatInputCommandInteraction,
     const songInfo = await ytdl.getBasicInfo(ytUrl);
     const videoDetails = songInfo.videoDetails;
 
+    // TODO: get users nickname from server for username
     const song: Song = {
         url: ytUrl,
         title: videoDetails.title,
@@ -210,7 +211,7 @@ async function retrieveSongInformation(interaction: ChatInputCommandInteraction,
 async function replyWithSongInfo(song: Song, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
     if(!song){ return; }
 
-    const embed = embedNowPlayingSong(song, interaction, clientAdapter);
+    const embed = nowPlayingSong(song, interaction, clientAdapter);
     console.info(`[INFO] Now playing "${song.title}" requested by "${song.requestedByUsername}" in guild "${interaction.guild?.name}"`);
     if(interaction.replied){
         await interaction.channel?.send({embeds: [embed]});
@@ -220,7 +221,7 @@ async function replyWithSongInfo(song: Song, interaction: ChatInputCommandIntera
 }
 
 async function replyWithPlaylistInfo(playlist: ytpl.Result, interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
-    const embed = embedAddedPlaylistToQueue(playlist, interaction, clientAdapter);
+    const embed = addedPlaylistToQueue(playlist, interaction, clientAdapter);
     console.log(`[INFO] Added ${playlist.items.length} songs from the playlist to the queue in guild "${interaction.guild?.name}"`);
     if(interaction.replied){
         await interaction.channel?.send({embeds: [embed]});

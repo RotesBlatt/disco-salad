@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, Collection } from "discord.js";
+import { ChatInputCommandInteraction, Client, Collection, ColorResolvable } from "discord.js";
 import { AudioPlayer, AudioResource, VoiceConnection } from "@discordjs/voice";
 
 export class CustomGuild {
@@ -30,3 +30,13 @@ export interface ClientAdaptation {
     commands: Collection<string, any>,
     guildCollection: Collection<string, CustomGuild>,
 }
+
+interface EmbedColor {
+    SUCCESSFUL: ColorResolvable,
+    ERROR: ColorResolvable,
+}
+
+export const EmbedColors: EmbedColor = {
+    SUCCESSFUL: '#00aaff',
+    ERROR: '#c71224',
+};
