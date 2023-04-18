@@ -60,6 +60,7 @@ export default {
 async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result){
     console.log(`[INFO] Fetching Playlist songs for guild: "${interaction.guild?.name}"`);
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+    const userNickname = interaction.guild?.members.cache.get(interaction.user.id)?.nickname;
 
     playlist.items.forEach(async (video) => {
        const song: Song = {
@@ -67,8 +68,8 @@ async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInterac
         title: video.title,
         authorName: video.author.name,
         duration: video.durationSec?.toString()!,
-        thumbnailUrl: video.thumbnails[3].url!,
-        requestedByUsername: interaction.user.username,
+        thumbnailUrl: video.thumbnails[3]?.url!,
+        requestedByUsername: userNickname ?? interaction.user.username,
         requestedByTag: interaction.user.tag,
        } 
        customGuild.songQueue.push(song);
@@ -194,15 +195,15 @@ function playNextSongInQueue(song: Song, customGuild: CustomGuild) {
 async function retrieveSongInformation(interaction: ChatInputCommandInteraction, ytUrl: string){
     const songInfo = await ytdl.getBasicInfo(ytUrl);
     const videoDetails = songInfo.videoDetails;
+    const userNickname = interaction.guild?.members.cache.get(interaction.user.id)?.nickname;
 
-    // TODO: get users nickname from server for username
     const song: Song = {
         url: ytUrl,
         title: videoDetails.title,
         thumbnailUrl: videoDetails.thumbnails[3].url, // size: 336 x 188 px
         authorName: videoDetails.author.name,
         duration: videoDetails.lengthSeconds,
-        requestedByUsername: interaction.user.username,  
+        requestedByUsername: userNickname ?? interaction.user.username,  
         requestedByTag: interaction.user.tag,          
     }
     return song;
