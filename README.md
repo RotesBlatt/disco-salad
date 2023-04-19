@@ -68,7 +68,9 @@ This is an example of how to list things you need to use the software and how to
 <!-- Usage -->
 ## Usage
 
-After inviting your local copy of the bot to the server there is nothing else you need to do to start the party! Just get into a voice channel and type your first command!
+First, invite the bot to your server by going to the [Discord Developer Portal](https://discord.com/developers/applications) and selecting your application (bot). Then go to the tab "OAuth2" and select "URL Generator", select the "bot" scope and give it the "Administrator" permissions. Now you'll see a generated URL which you can copy into a new tab and invite the bot to a server where you are an admin".
+
+After inviting the bot to the server, you can start the party! Just get into a voice channel and type your first command into any text channel!
 
 * /play search: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
@@ -94,7 +96,7 @@ After inviting your local copy of the bot to the server there is nothing else yo
 
   Stops the bot from playing the music and clears it's entire song queue. If you want the bot to leave as well, then type "/leave" to get the same result be he also leaves your voice channel
 
-There are more features which you can see by typing / in a text-channel and then click on the little icon from the bot and scrolling through the list of commands.
+There are more features which you can see by typing / in a text-channel. Then clicking on the little icon from the bot enables you to scroll through the list of commands which exist on the bot.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
