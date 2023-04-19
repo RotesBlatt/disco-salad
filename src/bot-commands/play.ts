@@ -4,10 +4,10 @@ import ytdl from "ytdl-core";
 import fetch from 'node-fetch';
 import spotifyUrlInfo from "spotify-url-info";
 const spotifyInfo = spotifyUrlInfo(fetch);
-import { ClientAdaptation, CustomGuild, SettingsOptions, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
+import { ClientAdaptation, CustomGuild, SettingsOptions, Song } from "../types/bot-types";
 import { addedPlaylistToQueue, addedSongToQueue, errorOcurred, nowPlayingSong } from "../embeds/embeds";
 
 export default {

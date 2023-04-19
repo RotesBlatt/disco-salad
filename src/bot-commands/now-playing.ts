@@ -1,6 +1,6 @@
 import { ClientAdaptation } from "../types/bot-types";
-import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { errorOcurred, nowPlayingSong } from "../embeds/embeds";
+import { isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export default {

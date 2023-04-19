@@ -1,8 +1,8 @@
+import ytdl from "ytdl-core";
 import { errorOcurred } from "../embeds/embeds";
-import { StreamType, createAudioResource, joinVoiceChannel } from "@discordjs/voice";
 import { ChatInputCommandInteraction } from "discord.js";
 import { ClientAdaptation, SettingsOptions } from "../types/bot-types";
-import ytdl from "ytdl-core";
+import { StreamType, createAudioResource, joinVoiceChannel } from "@discordjs/voice";
 
 export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions) { 
 
