@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import {readFile} from "node:fs/promises"; 
 import loadAllCommands from "./utils/retrieve-commands";
 import { ClientAdaptation, CustomGuild, SettingsOptions } from "./types/bot-types";
-import { Client, Collection, Events, GatewayIntentBits, ActivityType } from "discord.js";
+import { Client, Collection, Events, GatewayIntentBits, ActivityType, PermissionsBitField } from "discord.js";
 
 dotenv.config();
 
@@ -35,12 +35,14 @@ clientAdapter.client.on(Events.InteractionCreate, async interaction => {
     );
     
     const member = await interaction.guild?.members.fetch(interaction.user?.id);
-    if(guildConfig.allowedToUseRoleName && !member?.roles.cache.has(guildConfig.allowedToUseRoleName)){
+    const isAdmin = member?.permissions.has(PermissionsBitField.Flags.Administrator);
+
+    if(!isAdmin && guildConfig.allowedToUseRoleName && !member?.roles.cache.has(guildConfig.allowedToUseRoleName)){
         await interaction.reply({content: `You do not have the necessary role to use the bot`, ephemeral: true});
         return;
     }
 
-    if(guildConfig.textChannelId && guildConfig.textChannelId !== interaction.channelId){ 
+    if(!isAdmin && guildConfig.textChannelId && guildConfig.textChannelId !== interaction.channelId){ 
         await interaction.reply({content: `You need to use the channel <#${guildConfig.textChannelId}> to use the bot`, ephemeral: true});
         return; 
     };
