@@ -33,6 +33,12 @@ clientAdapter.client.on(Events.InteractionCreate, async interaction => {
             new URL(`../guild-data/${interaction.guildId}.json`, import.meta.url)
         ) as any,
     );
+    
+    const member = await interaction.guild?.members.fetch(interaction.user?.id);
+    if(guildConfig.allowedToUseRoleName && !member?.roles.cache.has(guildConfig.allowedToUseRoleName)){
+        await interaction.reply({content: `You do not have the necessary role to use the bot`, ephemeral: true});
+        return;
+    }
 
     if(guildConfig.textChannelId && guildConfig.textChannelId !== interaction.channelId){ 
         await interaction.reply({content: `You need to use the channel <#${guildConfig.textChannelId}> to use the bot`, ephemeral: true});
@@ -59,11 +65,6 @@ clientAdapter.client.on(Events.InteractionCreate, async interaction => {
 
 clientAdapter.client.on(Events.GuildCreate, guild => {
     const configFilePath = path.resolve(`guild-data/${guild.id}.json`);
-
-    if(fs.existsSync(configFilePath)){
-        console.log(`[INFO] Found config file for guild: ${guild.name}`);
-        return;
-    }
 
     const emptySettings: SettingsOptions = {};
     const settingsOutputToFile = JSON.stringify(emptySettings);

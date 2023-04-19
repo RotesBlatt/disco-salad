@@ -36,8 +36,8 @@ export default {
             .setRequired(false)
             )
         .addRoleOption(option => option
-            .setName('roles')
-            .setDescription('The roles that are able to use the bot')
+            .setName('role')
+            .setDescription('The role that is able to use the bot')
             .setRequired(false)
             )
         .setDMPermission(false),
@@ -50,7 +50,7 @@ export default {
         const playlistLimitOption = interaction.options.getInteger('limit', false);
         const leaveSoundOption = interaction.options.getString('leave-sound', false);
         const alwaysShowSongOption = interaction.options.getBoolean('show', false);
-        const rolesOption = interaction.options.getRole('roles', false);
+        const rolesOption = interaction.options.getRole('role', false);
 
         const updatedGuildSettings: SettingsOptions = {
             textChannelId: textChannelOption?.id ?? guildConfig.textChannelId,
@@ -58,7 +58,7 @@ export default {
             playlistLimit: playlistLimitOption ?? guildConfig.playlistLimit,
             leaveSoundUrl: leaveSoundOption ?? guildConfig.leaveSoundUrl,
             alwaysShowSong: alwaysShowSongOption ?? guildConfig.alwaysShowSong,
-            allowedToUseRoleName: rolesOption?.name ?? guildConfig.allowedToUseRoleName,
+            allowedToUseRoleName: rolesOption?.id ?? guildConfig.allowedToUseRoleName,
         };
         const outputUpdatedGuildSettings = JSON.stringify(updatedGuildSettings);
 
