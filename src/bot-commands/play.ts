@@ -47,7 +47,7 @@ export default {
 
             try {
                 const playlistId = await ytpl.getPlaylistID(searchString);
-                const playlist = await ytpl(playlistId);
+                const playlist = await ytpl(playlistId, {limit: guildConfig.playlistLimit ?? 100});
                 
                 if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
                     createAudioPlayerForGuild(interaction, clientAdapter);
