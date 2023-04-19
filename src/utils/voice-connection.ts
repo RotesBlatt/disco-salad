@@ -1,9 +1,9 @@
 import { errorOcurred } from "../embeds/embeds";
 import { joinVoiceChannel } from "@discordjs/voice";
-import { ClientAdaptation } from "../types/bot-types";
 import { ChatInputCommandInteraction } from "discord.js";
+import { ClientAdaptation, SettingsOptions } from "../types/bot-types";
 
-export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) { 
+export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions) { 
 
     const userVoiceChannelId = await isUserInVoiceChannel(interaction, clientAdapter);
     if(!userVoiceChannelId){
@@ -14,7 +14,7 @@ export async function createVoiceConnection(interaction: ChatInputCommandInterac
     if(!customGuild.voiceConnection){ 
         const connection = joinVoiceChannel({
             adapterCreator: interaction.guild!.voiceAdapterCreator,
-            channelId: userVoiceChannelId,
+            channelId: guildConfig.voiceChannelId ?? userVoiceChannelId,
             guildId: interaction.guildId!,
         });
 

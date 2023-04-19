@@ -4,7 +4,7 @@ import ytdl from "ytdl-core";
 import fetch from 'node-fetch';
 import spotifyUrlInfo from "spotify-url-info";
 const spotifyInfo = spotifyUrlInfo(fetch);
-import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
+import { ClientAdaptation, CustomGuild, SettingsOptions, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
@@ -21,7 +21,7 @@ export default {
             )
         .setDMPermission(false),
     
-    async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
+    async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions){
         await interaction.deferReply();
 
         var searchString = interaction.options.get('search')?.value as string;
@@ -35,7 +35,7 @@ export default {
                     const firstArtistName = data.artists[0].name;
                     const url = await getUrlFromInput(`${data.name} ${firstArtistName} lyrics`);
 
-                    await playFromUrl(interaction, clientAdapter, url);
+                    await playFromUrl(interaction, clientAdapter, guildConfig, url);
                 } else {
                     console.log(`[WARNING] Searching for '${data.type}' on spotify is not a valid option in "${interaction.guild?.name}`);
                     await interaction.editReply({embeds: [errorOcurred(`Playlist or artists links on spotify are not supported, try a single spotify track`, clientAdapter)]});
@@ -49,7 +49,7 @@ export default {
                 const playlistId = await ytpl.getPlaylistID(searchString);
                 const playlist = await ytpl(playlistId);
                 
-                if(await createVoiceConnection(interaction, clientAdapter)){    
+                if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
                     createAudioPlayerForGuild(interaction, clientAdapter);
                     addPlaylistSongsToGuildQueue(interaction, clientAdapter, playlist);
                 }
@@ -67,12 +67,12 @@ export default {
             }
         }
 
-        await playFromUrl(interaction, clientAdapter, searchString);
+        await playFromUrl(interaction, clientAdapter, guildConfig, searchString);
     },
 }
 
-async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, ytUrl: string){
-    if(await createVoiceConnection(interaction, clientAdapter)){    
+async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, ytUrl: string){
+    if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
         createAudioPlayerForGuild(interaction, clientAdapter);
         addSongToGuildQueue(interaction, clientAdapter, ytUrl);
     }
