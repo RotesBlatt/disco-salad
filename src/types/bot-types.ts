@@ -48,4 +48,5 @@ export interface SettingsOptions {
     leaveSoundUrl?: string,
     alwaysShowSong?: boolean,
     allowedToUseRoleName?: string,
+    canJoinAnotherChannel?: boolean,
 }

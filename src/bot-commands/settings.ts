@@ -40,6 +40,11 @@ export default {
             .setDescription('The role that is able to use the bot')
             .setRequired(false)
             )
+        .addBooleanOption(option => option
+            .setName('movable')
+            .setDescription('Should the bot be able to join current vc even if already playing a song in another vc')
+            .setRequired(false)
+            )
         .setDMPermission(false),
     
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions){
@@ -55,6 +60,7 @@ export default {
         const leaveSoundOption = interaction.options.getString('leave-sound', false);
         const alwaysShowSongOption = interaction.options.getBoolean('show', false);
         const rolesOption = interaction.options.getRole('role', false);
+        const movable = interaction.options.getBoolean('movable', false);
 
         const updatedGuildSettings: SettingsOptions = {
             textChannelId: textChannelOption?.id ?? guildConfig.textChannelId,
@@ -63,6 +69,7 @@ export default {
             leaveSoundUrl: leaveSoundOption ?? guildConfig.leaveSoundUrl,
             alwaysShowSong: alwaysShowSongOption ?? guildConfig.alwaysShowSong,
             allowedToUseRoleName: rolesOption?.id ?? guildConfig.allowedToUseRoleName,
+            canJoinAnotherChannel: movable ?? guildConfig.canJoinAnotherChannel,
         };
         
         const success = updateGuildSettings(interaction, updatedGuildSettings);
