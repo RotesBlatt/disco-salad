@@ -1,6 +1,7 @@
-import fs from "node:fs"; 
+import fs from "node:fs";
 import path from "node:path";
 import * as dotenv from "dotenv";
+import {readFile} from "node:fs/promises"; 
 import loadAllCommands from "./utils/retrieve-commands";
 import { ClientAdaptation, CustomGuild, SettingsOptions } from "./types/bot-types";
 import { Client, Collection, Events, GatewayIntentBits, ActivityType } from "discord.js";
@@ -27,7 +28,11 @@ clientAdapter.client.once(Events.ClientReady, async c => {
 clientAdapter.client.on(Events.InteractionCreate, async interaction => {
     if(!interaction.isChatInputCommand()) { return; };
 
-    const guildConfig: SettingsOptions = (await import(`../guild-data/${interaction.guildId}.json`, {assert: {type: "json"}})).default;
+    const guildConfig: SettingsOptions = JSON.parse(
+        await readFile(
+            new URL(`../guild-data/${interaction.guildId}.json`, import.meta.url)
+        ) as any,
+    );
 
     if(guildConfig.textChannelId && guildConfig.textChannelId !== interaction.channelId){ 
         await interaction.reply({content: `You need to use the channel <#${guildConfig.textChannelId}> to use the bot`, ephemeral: true});

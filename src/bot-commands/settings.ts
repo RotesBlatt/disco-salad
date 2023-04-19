@@ -66,7 +66,7 @@ export default {
 
         fs.writeFile(configFilePath, outputUpdatedGuildSettings, 'utf-8', async (err) => {
             if(err){
-                console.log(`[ERROR] There was an error writing the settings file for guild ${interaction.guild?.name}`);
+                console.log(`[ERROR] There was an error writing the settings file for guild "${interaction.guild?.name}"`);
                 console.log(err);
                 await interaction.editReply({embeds: [errorOcurred('There was an error updating the server settings', clientAdapter)]});
             }
