@@ -1,6 +1,9 @@
 import ytsr from "ytsr";
 import ytpl from "ytpl";
 import ytdl from "ytdl-core";
+import fetch from 'node-fetch';
+import spotifyUrlInfo from "spotify-url-info";
+const spotifyInfo = spotifyUrlInfo(fetch);
 import { ClientAdaptation, CustomGuild, Song } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
@@ -25,8 +28,23 @@ export default {
         const isValidVideoUrl = ytdl.validateURL(searchString);
 
         
-
         if(!isValidVideoUrl){
+            try {
+                const data = await spotifyInfo.getData(searchString);
+                if(data.type === 'track'){
+                    const firstArtistName = data.artists[0].name;
+                    const url = await getUrlFromInput(`${data.name} ${firstArtistName} lyrics`);
+
+                    await playFromUrl(interaction, clientAdapter, url);
+                } else {
+                    console.log(`[WARNING] Searching for '${data.type}' on spotify is not a valid option in "${interaction.guild?.name}`);
+                    await interaction.editReply({embeds: [errorOcurred(`Playlist or artists links on spotify are not supported, try a single spotify track`, clientAdapter)]});
+                }
+                return;
+            } catch (error){
+                // Provided searchString is not a spotify link -> try searching for a playlist link in searchString
+            }
+
             try {
                 const playlistId = await ytpl.getPlaylistID(searchString);
                 const playlist = await ytpl(playlistId);
@@ -37,24 +55,35 @@ export default {
                 }
                 return;
             } catch (error) {
-                try {
-                    const searchResults = await ytsr(searchString, {limit: 1}); // some weird error gets printed to the console but doesn't affect the actual output
-                    const resultItem = searchResults.items[0] as any;
-                    searchString = resultItem.url as any;
-                } catch (error) {
-                    console.log(`[ERROR] There was en error searching for '${searchString}' in guild "${interaction.guild?.name}`);
-                    await interaction.editReply({embeds: [errorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
-                    return;
-                }
+                // Provided searchString is not a playlist link -> try searching for the searchString itself
             }
 
+            try {
+                searchString = await getUrlFromInput(searchString);
+            } catch (error) {
+                console.log(`[ERROR] There was en error searching for '${searchString}' in guild "${interaction.guild?.name}`);
+                await interaction.editReply({embeds: [errorOcurred(`There was en error searching for **${searchString}**`, clientAdapter)]});
+                return;
+            }
         }
 
-        if(await createVoiceConnection(interaction, clientAdapter)){    
-            createAudioPlayerForGuild(interaction, clientAdapter);
-            addSongToGuildQueue(interaction, clientAdapter, searchString);
-        }
+        await playFromUrl(interaction, clientAdapter, searchString);
     },
+}
+
+async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, ytUrl: string){
+    if(await createVoiceConnection(interaction, clientAdapter)){    
+        createAudioPlayerForGuild(interaction, clientAdapter);
+        addSongToGuildQueue(interaction, clientAdapter, ytUrl);
+    }
+}
+
+async function getUrlFromInput(searchString: string){
+    const filters = await ytsr.getFilters(searchString);
+    const filter = filters.get('Type')!.get('Video');
+    const searchResults = await ytsr(filter?.url!, {limit: 1, requestOptions: {}}); // some weird error gets printed to the console but doesn't affect the actual output
+    const resultItem = searchResults.items[0] as any;
+    return resultItem.url as string;
 }
 
 async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result){
