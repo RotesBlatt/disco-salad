@@ -73,7 +73,7 @@ clientAdapter.client.on(Events.GuildCreate, guild => {
 
     fs.writeFile(configFilePath, settingsOutputToFile, 'utf-8', (err) => {
         if(err){
-            console.log(`[ERROR] There was an error writing the settings file for guild ${guild.name}`);
+            console.log(`[ERROR] There was an error writing the settings file for guild "${guild.name}"`);
             console.log(err);
         }
         console.log(`[INFO] Created a new settings file for guild: ${guild.name}`);
