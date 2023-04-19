@@ -88,14 +88,15 @@ This is an example of how to list things you need to use the software and how to
   - [ ] Only users with certain permissions can use the bot
   - [ ] Should show current playing song whenever it starts playing
   - [ ] How many songs should be retrieved from a playlist when linking a playlist
+  - [ ] Play a url before leaving the voicechannel because of inactivity 
 - [x] Use embeds for user interaction
+- [x] Spotify streaming option (kinda)
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
     - [ ] Amount of times a song has been played
     - [ ] Most played artist
     - [ ] Who requested the song
 - [ ] Ask chatgpt for a song suggestion by giving it a topic/theme
-- [ ] Spotify streaming option (https://developer.spotify.com/documentation/web-playback-sdk/reference#spotifyplayer, https://www.npmjs.com/package/@discord-player/extractor)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Acknowledgements -->

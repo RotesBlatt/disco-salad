@@ -1,11 +1,13 @@
 {
   "type": "module",
   "dependencies": {
-    "@tsconfig/node16": "^1.0.3",
     "@discordjs/voice": "^0.16.0",
+    "@tsconfig/node16": "^1.0.3",
     "discord.js": "^14.9.0",
     "dotenv": "^16.0.3",
+    "node-fetch": "^3.3.1",
     "sodium": "^3.0.2",
+    "spotify-url-info": "^3.2.3",
     "ytdl-core": "^4.11.4",
     "ytpl": "^2.3.0",
     "ytsr": "^3.8.1"
