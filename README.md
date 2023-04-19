@@ -96,7 +96,7 @@ After inviting the bot to the server, you can start the party! Just get into a v
 
   Stops the bot from playing the music and clears it's entire song queue. If you want the bot to leave as well, then type "/leave" to get the same result be he also leaves your voice channel
 
-There are more features which you can see by typing / in a text-channel. Then clicking on the little icon from the bot enables you to scroll through the list of commands which exist on the bot.
+There are more features which you can see by typing "/" in a text-channel. Then clicking on the little icon from the bot enables you to scroll through the list of commands which exist on the bot.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -124,7 +124,7 @@ There are more features which you can see by typing / in a text-channel. Then cl
   - [ ] Only users with certain permissions can use the bot
   - [ ] Should show current playing song whenever it starts playing
   - [ ] How many songs should be retrieved from a playlist when linking a playlist
-  - [ ] Play a url before leaving the voicechannel because of inactivity 
+  - [ ] Play a song from a url before leaving the voicechannel after 5 minutes of inactivity 
 - [x] Use embeds for user interaction
 - [x] Spotify streaming option (kinda)
 - [ ] Use logger for logging information to the console
