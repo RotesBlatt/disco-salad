@@ -51,7 +51,7 @@ export default {
                 
                 if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
                     createAudioPlayerForGuild(interaction, clientAdapter);
-                    addPlaylistSongsToGuildQueue(interaction, clientAdapter, playlist);
+                    addPlaylistSongsToGuildQueue(interaction, clientAdapter, guildConfig, playlist);
                 }
                 return;
             } catch (error) {
@@ -74,7 +74,7 @@ export default {
 async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, ytUrl: string){
     if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
         createAudioPlayerForGuild(interaction, clientAdapter);
-        addSongToGuildQueue(interaction, clientAdapter, ytUrl);
+        addSongToGuildQueue(interaction, clientAdapter, guildConfig, ytUrl);
     }
 }
 
@@ -86,7 +86,7 @@ async function getUrlFromInput(searchString: string){
     return resultItem.url as string;
 }
 
-async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result){
+async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, playlist: ytpl.Result){
     console.log(`[INFO] Fetching Playlist songs for guild: "${interaction.guild?.name}"`);
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
     const userNickname = interaction.guild?.members.cache.get(interaction.user.id)?.nickname;
@@ -108,11 +108,11 @@ async function addPlaylistSongsToGuildQueue(interaction: ChatInputCommandInterac
         console.log(`[INFO] Added ${playlist.items.length} songs from the playlist to the queue in guild "${interaction.guild?.name}"`);
         await interaction.editReply({embeds: [addedPlaylistToQueue(playlist, interaction, clientAdapter)]});
     } else {
-        playSongFromQueue(interaction, clientAdapter, playlist);
+        playSongFromQueue(interaction, clientAdapter, guildConfig, playlist);
     }
 }
 
-async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, ytUrl: string) {
+async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, ytUrl: string) {
     console.log(`[INFO] Fetching Video Information for guild: "${interaction.guild?.name}" and url: "${ytUrl}"`);
 
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
@@ -124,7 +124,7 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
         await interaction.editReply({embeds: [addedSongToQueue(song, interaction, clientAdapter)]});
         console.log(`[INFO] Added song: "${song.title}" to the queue in guild "${interaction.guild?.name}"`);
     } else {
-        playSongFromQueue(interaction, clientAdapter, undefined);
+        playSongFromQueue(interaction, clientAdapter, guildConfig, undefined);
     }
 }
 
@@ -155,7 +155,7 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     customGuild.player = player;
 }
 
-async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, playlist: ytpl.Result | undefined) {
+async function playSongFromQueue(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, playlist: ytpl.Result | undefined) {
     console.log(`[INFO] Started playing in guild: "${interaction.guild?.name}"`);
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
     var isFirstIteration = true;
@@ -186,13 +186,14 @@ async function playSongFromQueue(interaction: ChatInputCommandInteraction, clien
             continue;
         }
         
-        if(isFirstIteration ){
-            isFirstIteration = false;
-            if(playlist){
+        if(isFirstIteration || guildConfig.alwaysShowSong){
+            const neverUsed = guildConfig; // This line is needed because otherwise the guildconfig variables do not update properly
+            if(playlist && isFirstIteration){
                 await replyWithPlaylistInfo(playlist, interaction, clientAdapter);
             } else {
                 await replyWithSongInfo(song, interaction, clientAdapter);
             }
+            isFirstIteration = false;
         }
         
 
