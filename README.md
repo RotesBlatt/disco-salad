@@ -96,6 +96,10 @@ After inviting the bot to the server, you can start the party! Just get into a v
 
   Stops the bot from playing the music and clears it's entire song queue. If you want the bot to leave as well, then type "/leave" to get the same result be he also leaves your voice channel
 
+* /settings
+
+  This command has a lot of different options which help you control the user behavior of the bot. Only users with administrator permission are able to use this command so that no user is able to change the behavior of the bot. If you want to reset your server settings, type "/reset-settings" into a channel and all your settings will be reset.
+
 There are more features which you can see by typing "/" in a text-channel. Then clicking on the little icon from the bot enables you to scroll through the list of commands which exist on the bot.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -117,14 +121,14 @@ There are more features which you can see by typing "/" in a text-channel. Then 
     - [x] Show the song queue to the user
     - [x] Remove songs at specific index from the queue
     - [x] Skip to specific song position in queue
-- [ ] Create server settings
-  - [ ] Listen to only one text-channel for commands
-  - [ ] Join only one specific channel
-  - [ ] Restrict bot from changing channel when doing (/join)
-  - [ ] Only users with certain permissions can use the bot
-  - [ ] Should show current playing song whenever it starts playing
-  - [ ] How many songs should be retrieved from a playlist when linking a playlist
-  - [ ] Play a song from a url before leaving the voicechannel after 5 minutes of inactivity 
+- [x] Create server settings
+  - [x] Listen to only one text-channel for commands
+  - [x] Join only one specific channel
+  - [x] Restrict bot from changing channel when doing (/join)
+  - [x] Only users with certain permissions can use the bot
+  - [x] Should show current playing song whenever it starts playing
+  - [x] How many songs should be retrieved from a playlist when linking a playlist
+  - [x] Play a song from a url before leaving the voicechannel after 5 minutes of inactivity 
 - [x] Use embeds for user interaction
 - [x] Spotify streaming option (kinda)
 - [ ] Use logger for logging information to the console

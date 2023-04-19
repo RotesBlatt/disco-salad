@@ -28,6 +28,7 @@ export default {
         if(!customGuild.currentSong){
             console.log(`[WARNING] Can not skip song because no song is playing in guild "${interaction.guild?.name}"`);
             await interaction.editReply({embeds: [errorOcurred("Can not skip song because no song is playing", clientAdapter)]});
+            return;
         } 
 
         if(!await skipToSongInQueue(interaction, clientAdapter, skipToValue)){return;}

@@ -1,7 +1,7 @@
 import { errorOcurred } from "../embeds/embeds";
 import { ClientAdaptation } from "../types/bot-types";
-import { clearCustomGuildProperties, isUserInVoiceChannel } from "../utils/voice-connection";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { clearCustomGuildProperties, isUserInVoiceChannel } from "../utils/voice-connection";
 
 export default {
     data: new SlashCommandBuilder()

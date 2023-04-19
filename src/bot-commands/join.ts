@@ -1,6 +1,7 @@
+import { errorOcurred } from "../embeds/embeds";
 import { joinVoiceChannel } from "@discordjs/voice";
-import { ClientAdaptation } from "../types/bot-types";
 import { isUserInVoiceChannel } from "../utils/voice-connection";
+import { ClientAdaptation, SettingsOptions } from "../types/bot-types";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export default {
@@ -9,15 +10,20 @@ export default {
         .setDescription('Joins your current voice channel')
         .setDMPermission(false),
     
-    async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation){
+    async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions){
         await interaction.deferReply();
+        
+        const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+
+        if(guildConfig.canJoinAnotherChannel === false && customGuild.voiceConnection){
+            await interaction.editReply({embeds: [errorOcurred('The bot is not allowed to move to another channel', clientAdapter)]});
+            return;
+        }
 
         const userVoiceChannelId = await isUserInVoiceChannel(interaction, clientAdapter);
         if(!userVoiceChannelId){
             return;
-        }
-
-        const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+        }   
 
         const connection = joinVoiceChannel({
             adapterCreator: interaction.guild!.voiceAdapterCreator,

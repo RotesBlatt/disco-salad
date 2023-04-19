@@ -1,9 +1,10 @@
+import ytdl from "ytdl-core";
 import { errorOcurred } from "../embeds/embeds";
-import { joinVoiceChannel } from "@discordjs/voice";
-import { ClientAdaptation } from "../types/bot-types";
 import { ChatInputCommandInteraction } from "discord.js";
+import { ClientAdaptation, SettingsOptions } from "../types/bot-types";
+import { StreamType, createAudioResource, joinVoiceChannel } from "@discordjs/voice";
 
-export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) { 
+export async function createVoiceConnection(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions) { 
 
     const userVoiceChannelId = await isUserInVoiceChannel(interaction, clientAdapter);
     if(!userVoiceChannelId){
@@ -14,7 +15,7 @@ export async function createVoiceConnection(interaction: ChatInputCommandInterac
     if(!customGuild.voiceConnection){ 
         const connection = joinVoiceChannel({
             adapterCreator: interaction.guild!.voiceAdapterCreator,
-            channelId: userVoiceChannelId,
+            channelId: guildConfig.voiceChannelId ?? userVoiceChannelId,
             guildId: interaction.guildId!,
         });
 
@@ -36,8 +37,33 @@ export async function isUserInVoiceChannel(interaction: ChatInputCommandInteract
     return userVoiceChannel.id;
 }
 
-export async function leaveVoiceChannel(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
+export async function leaveVoiceChannel(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions) {
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
+
+    const soundUrl = guildConfig.leaveSoundUrl;
+    if(soundUrl){
+        try {
+            const isValidVideoUrl = ytdl.validateURL(soundUrl);
+            if(isValidVideoUrl){
+                const stream = ytdl(soundUrl, {
+                    filter: "audioonly", 
+                    quality: "lowestaudio", 
+                    liveBuffer: 3000,
+                    highWaterMark: 1 << 22,
+                });
+                var resource = createAudioResource(stream, {inputType: StreamType.Arbitrary});
+                customGuild.player!.play(resource);
+        
+                while(!resource.started || !resource.ended){
+                    await sleep(50);
+                }
+            }
+            
+        } catch (error) {
+            console.log(`[ERROR] There was an error playing the leaving sound`);
+        }
+    }
+    
 
     console.log(`[INFO] Disconnecting voice channel in guild "${interaction.guild?.name}"`);
     customGuild.player?.removeAllListeners();
@@ -55,4 +81,8 @@ export async function clearCustomGuildProperties(interaction: ChatInputCommandIn
     customGuild.loopFirstInQueue = false;
     customGuild.songQueuePageIndex = 1;
     customGuild.lastQueueInteraction = undefined;
+}
+
+function sleep(ms: number){
+    return new Promise(r => setTimeout(r, ms))
 }
