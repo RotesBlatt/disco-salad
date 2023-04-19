@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, Collection, ColorResolvable } from "discord.js";
+import { ChatInputCommandInteraction, Client, Collection, ColorResolvable, Role, TextChannel, VoiceChannel } from "discord.js";
 import { AudioPlayer, AudioResource, VoiceConnection } from "@discordjs/voice";
 
 export class CustomGuild {
@@ -40,3 +40,12 @@ export const EmbedColors: EmbedColor = {
     SUCCESSFUL: '#00aaff',
     ERROR: '#c71224',
 };
+
+export interface SettingsOptions {
+    textChannelId?: string,
+    voiceChannelId?: string,
+    playlistLimit?: number,
+    leaveSoundUrl?: string,
+    alwaysShowSong?: boolean,
+    allowedToUseRoleName?: string,
+}
