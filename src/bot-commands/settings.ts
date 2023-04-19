@@ -1,6 +1,6 @@
-import fs from "node:fs";
-import path from "node:path";
 import { errorOcurred } from "../embeds/embeds";
+import { updateGuildSettings } from "../utils/settings-file";
+import { hasUserAdminPermissions } from "../utils/permissions";
 import { ClientAdaptation, SettingsOptions } from "../types/bot-types";
 import { ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
@@ -45,6 +45,10 @@ export default {
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions){
         await interaction.deferReply();
 
+        if(!await hasUserAdminPermissions(interaction, clientAdapter)){
+            return;
+        }
+
         const textChannelOption = interaction.options.getChannel('text-channel', false, [ChannelType.GuildText]);
         const voiceChannelOption = interaction.options.getChannel('voice-channel', false, [ChannelType.GuildVoice]);
         const playlistLimitOption = interaction.options.getInteger('limit', false);
@@ -60,18 +64,12 @@ export default {
             alwaysShowSong: alwaysShowSongOption ?? guildConfig.alwaysShowSong,
             allowedToUseRoleName: rolesOption?.id ?? guildConfig.allowedToUseRoleName,
         };
-        const outputUpdatedGuildSettings = JSON.stringify(updatedGuildSettings);
-
-        const configFilePath = path.resolve(`guild-data/${interaction.guildId}.json`);
-
-        fs.writeFile(configFilePath, outputUpdatedGuildSettings, 'utf-8', async (err) => {
-            if(err){
-                console.log(`[ERROR] There was an error writing the settings file for guild "${interaction.guild?.name}"`);
-                console.log(err);
-                await interaction.editReply({embeds: [errorOcurred('There was an error updating the server settings', clientAdapter)]});
-            }
-            console.log(`[INFO] Updated the settings file for guild: ${interaction.guild?.name}`);
+        
+        const success = updateGuildSettings(interaction, updatedGuildSettings);
+        if(success){
             await interaction.editReply(`:white_check_mark: **Successfully updated the server settings**`);
-        })
+        } else {
+            await interaction.editReply({embeds: [errorOcurred('There was an error updating the server settings', clientAdapter)]});
+        }
     },
 }

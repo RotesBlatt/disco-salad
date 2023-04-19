@@ -1,10 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
 import * as dotenv from "dotenv";
 import {readFile} from "node:fs/promises"; 
 import loadAllCommands from "./utils/retrieve-commands";
+import { isUserFollowingServerSettings } from "./utils/permissions";
 import { ClientAdaptation, CustomGuild, SettingsOptions } from "./types/bot-types";
-import { Client, Collection, Events, GatewayIntentBits, ActivityType, PermissionsBitField } from "discord.js";
+import { Client, Collection, Events, GatewayIntentBits, ActivityType} from "discord.js";
+import { createGuildSettingsIfNotExisting, removeGuildSettings } from "./utils/settings-file";
 
 dotenv.config();
 
@@ -28,24 +28,18 @@ clientAdapter.client.once(Events.ClientReady, async c => {
 clientAdapter.client.on(Events.InteractionCreate, async interaction => {
     if(!interaction.isChatInputCommand()) { return; };
 
+    createGuildSettingsIfNotExisting(interaction.guild!);
+    
+    const filePath = `../guild-data/${interaction.guildId}.json`;
     const guildConfig: SettingsOptions = JSON.parse(
         await readFile(
-            new URL(`../guild-data/${interaction.guildId}.json`, import.meta.url)
+            new URL(filePath, import.meta.url)
         ) as any,
     );
     
-    const member = await interaction.guild?.members.fetch(interaction.user?.id);
-    const isAdmin = member?.permissions.has(PermissionsBitField.Flags.Administrator);
-
-    if(!isAdmin && guildConfig.allowedToUseRoleName && !member?.roles.cache.has(guildConfig.allowedToUseRoleName)){
-        await interaction.reply({content: `You do not have the necessary role to use the bot`, ephemeral: true});
+    if(!await isUserFollowingServerSettings(interaction, clientAdapter, guildConfig)){
         return;
     }
-
-    if(!isAdmin && guildConfig.textChannelId && guildConfig.textChannelId !== interaction.channelId){ 
-        await interaction.reply({content: `You need to use the channel <#${guildConfig.textChannelId}> to use the bot`, ephemeral: true});
-        return; 
-    };
 
     if(!clientAdapter.guildCollection.has(interaction.guildId!)){
         clientAdapter.guildCollection.set(interaction.guildId!, new CustomGuild());
@@ -66,18 +60,11 @@ clientAdapter.client.on(Events.InteractionCreate, async interaction => {
 });
 
 clientAdapter.client.on(Events.GuildCreate, guild => {
-    const configFilePath = path.resolve(`guild-data/${guild.id}.json`);
-
-    const emptySettings: SettingsOptions = {};
-    const settingsOutputToFile = JSON.stringify(emptySettings);
-
-    fs.writeFile(configFilePath, settingsOutputToFile, 'utf-8', (err) => {
-        if(err){
-            console.log(`[ERROR] There was an error writing the settings file for guild "${guild.name}"`);
-            console.log(err);
-        }
-        console.log(`[INFO] Created a new settings file for guild: ${guild.name}`);
-    })
+    createGuildSettingsIfNotExisting(guild)
 });
+
+clientAdapter.client.on(Events.GuildDelete, guild => {
+    removeGuildSettings(guild);
+})
 
 clientAdapter.client.login(process.env.BOT_TOKEN!);
