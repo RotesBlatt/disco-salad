@@ -50,7 +50,7 @@ export default {
                 const playlist = await ytpl(playlistId, {limit: guildConfig.playlistLimit ?? 100});
                 
                 if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
-                    createAudioPlayerForGuild(interaction, clientAdapter);
+                    createAudioPlayerForGuild(interaction, clientAdapter, guildConfig);
                     addPlaylistSongsToGuildQueue(interaction, clientAdapter, guildConfig, playlist);
                 }
                 return;
@@ -73,7 +73,7 @@ export default {
 
 async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions, ytUrl: string){
     if(await createVoiceConnection(interaction, clientAdapter, guildConfig)){    
-        createAudioPlayerForGuild(interaction, clientAdapter);
+        createAudioPlayerForGuild(interaction, clientAdapter, guildConfig);
         addSongToGuildQueue(interaction, clientAdapter, guildConfig, ytUrl);
     }
 }
@@ -128,7 +128,7 @@ async function addSongToGuildQueue(interaction: ChatInputCommandInteraction, cli
     }
 }
 
-async function createAudioPlayerForGuild(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation) {
+async function createAudioPlayerForGuild(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions) {
     const customGuild = clientAdapter.guildCollection.get(interaction.guildId!)!;
     if(customGuild.player){ return; }
 
@@ -142,7 +142,7 @@ async function createAudioPlayerForGuild(interaction: ChatInputCommandInteractio
     .on("stateChange", (oldState, newState) => {
         if(oldState.status === "playing" && newState.status === "idle"){
             customGuild.timeout = setTimeout(() => {
-                leaveVoiceChannel(interaction, clientAdapter);
+                leaveVoiceChannel(interaction, clientAdapter, guildConfig);
             }, 5 * 60 * 1000); // 5 min before disconnect
         } else if (oldState.status === "buffering" && newState.status === "playing"){
             if(customGuild.timeout){
