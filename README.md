@@ -53,6 +53,7 @@ This is an example of how to list things you need to use the software and how to
     ```env
     BOT_TOKEN=YOUR_DISCORD_BOT_PRIVATE_TOKEN
     CLIENT_ID=YOUR_DISCORD_BOT_CLIENT_TOKEN
+    OPENAI_API_KEY="YOUR_OPEN_AI_API_KEY"
     ```
 4. Run the command deploy file
     ```sh
@@ -74,7 +75,7 @@ After inviting the bot to the server, you can start the party! Just get into a v
 
 * /play search: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
-  Soon after entering the command, you'll notice the bot joining your channel and start playing the music. You can also enter a spotify track link or just search for keywords by replacing the link with something like this: "marc rebillet edeka"
+  Soon after entering the command, you'll notice the bot joining your channel and start playing the music. You can also enter a spotify track link or just search for keywords by replacing the link with something like this: "marc rebillet edeka". Or if you just want to hear a song from a genre but don't want to pick one by yourself, ask chat-gpt for a song by using the optional "suggest" in the command
 
 * /skip
 
@@ -131,12 +132,12 @@ There are more features which you can see by typing "/" in a text-channel. Then 
   - [x] Play a song from a url before leaving the voicechannel after 5 minutes of inactivity 
 - [x] Use embeds for user interaction
 - [x] Spotify streaming option (kinda)
+- [x] Ask chat-gpt for a song suggestion by giving it a topic/theme
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
     - [ ] Amount of times a song has been played
     - [ ] Most played artist
     - [ ] Who requested the song
-- [ ] Ask chatgpt for a song suggestion by giving it a topic/theme
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Acknowledgements -->
