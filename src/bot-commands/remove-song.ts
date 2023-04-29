@@ -35,7 +35,7 @@ export default {
             removeIndex += 1;
         }
 
-        if(removeIndex > customGuild.songQueue.length || removeIndex < 0){
+        if(removeIndex + 1 > customGuild.songQueue.length || removeIndex < 0){
             console.log(`[WARNING] The position ${removeIndex + 1} is not a valid position in the queue in guild "${interaction.guild?.name}"`);
             await interaction.editReply({embeds: [errorOcurred(`The position (${removeIndex + 1}) is not a valid position in the queue`, clientAdapter)]});
             return;

@@ -4,6 +4,7 @@ import ytdl from "ytdl-core";
 import fetch from 'node-fetch';
 import spotifyUrlInfo from "spotify-url-info";
 const spotifyInfo = spotifyUrlInfo(fetch);
+import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from 'openai';
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { createVoiceConnection, leaveVoiceChannel } from "../utils/voice-connection";
 import { StreamType, createAudioPlayer, createAudioResource } from "@discordjs/voice";
@@ -17,16 +18,68 @@ export default {
         .addStringOption(option => option
             .setName('search')
             .setDescription('The YouTube url or the name of the song you want to play')
-            .setRequired(true)
+            .setRequired(false)
+            )
+        .addStringOption(option => option
+            .setName('suggest')
+            .setDescription('Ask chat-gpt for a song suggestion and that song will play')
+            .setRequired(false)
             )
         .setDMPermission(false),
     
     async execute(interaction: ChatInputCommandInteraction, clientAdapter: ClientAdaptation, guildConfig: SettingsOptions){
         await interaction.deferReply();
 
-        var searchString = interaction.options.get('search')?.value as string;
-        const isValidVideoUrl = ytdl.validateURL(searchString);
+        var searchString = interaction.options.getString('search', false);
+        const askGptInput = interaction.options.getString('suggest', false);
 
+        if(!askGptInput && !searchString){
+            console.log(`[WARNING] No input was given to play command on guild :"${interaction.guild?.name}"`);
+            await interaction.editReply({embeds: [errorOcurred('You need to enter an input into search or suggest', clientAdapter)]});
+            return;
+        }
+
+        if(askGptInput){
+            const gptConfig = new Configuration({
+                apiKey: process.env.OPENAI_API_KEY,
+            });
+            const openai = new OpenAIApi(gptConfig);
+
+            const messages: ChatCompletionRequestMessage[] = [{role: "user", content: "Give me one song which has the following description: '" + askGptInput + "'. Respond in the following format: {'Song name' by 'Author'}"}];
+
+            try {
+                const completion = await openai.createChatCompletion({
+                    model: "gpt-3.5-turbo",
+                    messages: messages,
+                });
+
+                const completion_text = completion?.data.choices[0].message?.content;
+                const withoutBrackets = completion_text?.substring(1, completion_text.length-1);
+                const withoutQuotes = withoutBrackets?.replaceAll("'", "");
+
+                if(!withoutQuotes || withoutQuotes.length > 140){
+                    console.log(`[ERROR] Something went wrong while asking Chat-Gpt for a song in guild: "${interaction.guild?.name}"`);
+                    await interaction.editReply({embeds: [errorOcurred('Something went wrong while asking Chat-Gpt for a song', clientAdapter)]});
+                    return;
+                }
+
+                const songYtUrl = await getUrlFromInput(withoutQuotes);
+                await playFromUrl(interaction, clientAdapter, guildConfig, songYtUrl);
+
+            } catch (error) {
+                console.log(`[ERROR] Something went wrong while asking Chat-Gpt for a song in guild: "${interaction.guild?.name}"`);
+                console.log(error);
+                await interaction.editReply({embeds: [errorOcurred('Something went wrong while asking Chat-Gpt for a song', clientAdapter)]});
+            }
+
+            return;
+        }
+
+        if(!searchString){
+            return;
+        }
+
+        const isValidVideoUrl = ytdl.validateURL(searchString);
         
         if(!isValidVideoUrl){
             try {
