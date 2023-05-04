@@ -33,6 +33,12 @@ export default {
         var searchString = interaction.options.getString('search', false);
         const askGptInput = interaction.options.getString('suggest', false);
 
+        if((searchString && searchString?.length > 256) || (askGptInput && askGptInput?.length > 256)){
+            console.log(`[WARNING] The input had to many characters, only 256 characters are allowed in guild ${interaction.guild?.name} `);
+            await interaction.editReply({embeds: [errorOcurred('The input you entered is too long, the input can only be 256 letters long', clientAdapter)]});
+            return;
+        }
+
         if(!askGptInput && !searchString){
             console.log(`[WARNING] No input was given to play command on guild :"${interaction.guild?.name}"`);
             await interaction.editReply({embeds: [errorOcurred('You need to enter an input into search or suggest', clientAdapter)]});
