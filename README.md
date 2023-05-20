@@ -75,7 +75,7 @@ After inviting the bot to the server, you can start the party! Just get into a v
 
 * /play search: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
-  Soon after entering the command, you'll notice the bot joining your channel and start playing the music. You can also enter a spotify track link or just search for keywords by replacing the link with something like this: "marc rebillet edeka". Or if you just want to hear a song from a genre but don't want to pick one by yourself, ask chat-gpt for a song by using the optional "suggest" in the command
+  Soon after entering the command, you'll notice the bot joining your channel and start playing the music. You can also just search for keywords by replacing the link with something like this: "marc rebillet edeka". Or if you just want to hear a song from a genre but don't want to pick one by yourself, ask chat-gpt for a song by using the optional "suggest" in the command
 
 * /skip
 
@@ -131,7 +131,6 @@ There are more features which you can see by typing "/" in a text-channel. Then 
   - [x] How many songs should be retrieved from a playlist when linking a playlist
   - [x] Play a song from a url before leaving the voicechannel after 5 minutes of inactivity 
 - [x] Use embeds for user interaction
-- [x] Spotify streaming option (kinda)
 - [x] Ask chat-gpt for a song suggestion by giving it a topic/theme
 - [ ] Use logger for logging information to the console
 - [ ] Track stats
