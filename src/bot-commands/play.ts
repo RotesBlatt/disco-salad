@@ -89,22 +89,6 @@ export default {
         
         if(!isValidVideoUrl){
             try {
-                const data = await spotifyInfo.getData(searchString);
-                if(data.type === 'track'){
-                    const firstArtistName = data.artists[0].name;
-                    const url = await getUrlFromInput(`${data.name} ${firstArtistName} lyrics`);
-
-                    await playFromUrl(interaction, clientAdapter, guildConfig, url);
-                } else {
-                    console.log(`[WARNING] Searching for '${data.type}' on spotify is not a valid option in "${interaction.guild?.name}`);
-                    await interaction.editReply({embeds: [errorOcurred(`Playlist or artists links on spotify are not supported, try a single spotify track`, clientAdapter)]});
-                }
-                return;
-            } catch (error){
-                // Provided searchString is not a spotify link -> try searching for a playlist link in searchString
-            }
-
-            try {
                 const playlistId = await ytpl.getPlaylistID(searchString);
                 const playlist = await ytpl(playlistId, {limit: guildConfig.playlistLimit ?? 100});
                 
@@ -140,8 +124,14 @@ async function playFromUrl(interaction: ChatInputCommandInteraction, clientAdapt
 async function getUrlFromInput(searchString: string){
     const filters = await ytsr.getFilters(searchString);
     const filter = filters.get('Type')!.get('Video');
-    const searchResults = await ytsr(filter?.url!, {limit: 1, requestOptions: {}}); // some weird error gets printed to the console but doesn't affect the actual output
-    const resultItem = searchResults.items[0] as any;
+    const videoPullLimit = 3;
+    const searchResults = await ytsr(filter?.url!, {limit: videoPullLimit}); // some weird error gets printed to the console but doesn't affect the actual output
+    for(let i = 0; i < videoPullLimit; i++){
+        if(searchResults.items[i].type == 'video'){
+            var resultItem = searchResults.items[i] as any;
+            break;
+        }
+    }
     return resultItem.url as string;
 }
 
